@@ -1,0 +1,31 @@
+quarkus:
+  http:
+    port: 3041
+  log:
+    level: INFO
+
+mp:
+  messaging:
+
+    # MQTT
+    incoming:
+      rtl433-in:
+        connector: smallrye-mqtt
+        host: 10.10.30.23   # required
+        port: 1883          # also required
+        topic: rtl_433/04dc5b173331/events
+        qos: 1
+        client-id: rtl433-client
+        auto-acknowledge: true
+
+    # RabbitMQ
+    outgoing:
+      raw-message:
+        connector: smallrye-rabbitmq
+        exchange: raw-message-exchange
+        exchange-type: topic
+        routing-key: raw.data
+        host: localhost
+        port: 5672
+        username: admin
+        password: secret

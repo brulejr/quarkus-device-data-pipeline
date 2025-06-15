@@ -1,0 +1,23 @@
+quarkus:
+  http:
+    port: 3042
+  log:
+    level: INFO
+
+mp:
+  messaging:
+
+    # RabbitMQ
+    incoming:
+      raw-message:
+        connector: smallrye-rabbitmq
+        queue: model-queue
+        exchange: raw-message-exchange
+        exchange-type: topic
+        routing-key: raw.#
+        auto-bind-exchange: true
+        declare: true
+        host: localhost
+        port: 5672
+        username: admin
+        password: secret
