@@ -21,18 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.common.service
+package io.jrb.labs.common.eventbus
 
-@Serializable
-sealed class LifecycleCommand {
-    abstract val serviceId: String
+interface Event {
 
-    @Serializable
-    data class Start(override val serviceId: String, val payload: JsonElement? = null) : LifecycleCommand()
+    val name: String
+        get() = javaClass.simpleName
 
-    @Serializable
-    data class Stop(override val serviceId: String) : LifecycleCommand()
-
-    @Serializable
-    data class Status(override val serviceId: String) : LifecycleCommand()
 }

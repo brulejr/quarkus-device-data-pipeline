@@ -21,21 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.model.messaging
+package io.jrb.labs.common.eventbus
 
-import io.jrb.labs.messages.RawMessage
-import io.jrb.labs.model.service.ModelService
-import io.vertx.core.json.JsonObject
-import jakarta.enterprise.context.ApplicationScoped
-import org.eclipse.microprofile.reactive.messaging.Incoming
+import io.jrb.labs.common.logging.LoggerDelegate
 
-@ApplicationScoped
-class RawMessageSubscriber(private val modelService: ModelService) {
+class SystemEventLogger(private val systemEventBus: SystemEventBus) {
 
-    @Incoming("raw-message")
-    fun process(json: JsonObject) {
-        val rawMessage = json.mapTo(RawMessage::class.java)
-        modelService.processRawMessage(rawMessage)
+    private val log by LoggerDelegate()
+
+    init {
+        systemEventBus.subscribe<SystemEvent> { m -> log.info("{}", m) }
     }
 
 }

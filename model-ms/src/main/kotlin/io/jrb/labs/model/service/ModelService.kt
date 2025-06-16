@@ -23,8 +23,34 @@
  */
 package io.jrb.labs.model.service
 
+import io.jrb.labs.common.eventbus.SystemEventBus
+import io.jrb.labs.common.logging.LoggerDelegate
+import io.jrb.labs.common.service.ControllableService
+import io.jrb.labs.messages.RawMessage
+import io.quarkus.runtime.Startup
+import jakarta.annotation.PostConstruct
+import jakarta.annotation.PreDestroy
 import jakarta.enterprise.context.ApplicationScoped
 
+@Startup
 @ApplicationScoped
-class ModelService {
+class ModelService(override var systemEventBus: SystemEventBus) : ControllableService() {
+
+    private val log by LoggerDelegate()
+    override val serviceName = "ModelService"
+
+    @PostConstruct
+    override fun startup() {
+        super.startup()
+    }
+
+    @PreDestroy
+    override fun shutdown() {
+        super.startup()
+    }
+
+    fun processRawMessage(rawMessage: RawMessage) {
+        log.info("$rawMessage")
+    }
+
 }
