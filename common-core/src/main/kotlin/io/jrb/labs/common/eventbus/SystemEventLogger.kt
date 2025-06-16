@@ -25,7 +25,7 @@ package io.jrb.labs.common.eventbus
 
 import io.jrb.labs.common.logging.LoggerDelegate
 
-class SystemEventLogger(private val systemEventBus: SystemEventBus) {
+class SystemEventLogger(systemEventBus: SystemEventBus) {
 
     private val log by LoggerDelegate()
 

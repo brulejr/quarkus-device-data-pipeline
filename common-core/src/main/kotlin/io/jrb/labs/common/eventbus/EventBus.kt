@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 open class EventBus<E : Event>(
-    val eventBusCapacity: Int = 100
+    eventBusCapacity: Int = 100
 ) {
     private val _scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val _events = MutableSharedFlow<E>(extraBufferCapacity = eventBusCapacity)
