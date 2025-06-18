@@ -24,11 +24,12 @@
 package io.jrb.labs.common.service.crud
 
 import io.jrb.labs.common.model.Entity
+import io.quarkus.mongodb.panache.kotlin.PanacheMongoRepository
 import java.util.UUID
 
 class CrudService<E : Entity<E>, R : Any>(
     private val entityType: String,
-    private val repository: EntityRepository<E>,
+    private val repository: PanacheMongoRepository<E>,
     private val guidGenerator: () -> String = { UUID.randomUUID().toString() },
     private val ownerGuidExtractor: suspend () -> String? = { null },
     private val toResource: suspend (E) -> R

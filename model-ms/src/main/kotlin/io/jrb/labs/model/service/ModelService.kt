@@ -23,20 +23,31 @@
  */
 package io.jrb.labs.model.service
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import io.jrb.labs.common.eventbus.SystemEventBus
-import io.jrb.labs.common.logging.LoggerDelegate
 import io.jrb.labs.common.service.ControllableService
 import io.jrb.labs.messages.RawMessage
+import io.jrb.labs.messages.RawMessageSource
+import io.jrb.labs.model.model.ModelEntity
+import io.jrb.labs.model.repository.ModelRepository
+import io.jrb.labs.model.resource.ModelResource
 import io.quarkus.runtime.Startup
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
 import jakarta.enterprise.context.ApplicationScoped
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 
 @Startup
 @ApplicationScoped
-class ModelService(override var systemEventBus: SystemEventBus) : ControllableService() {
+class ModelService(
+    override var systemEventBus: SystemEventBus,
+    private val modelRepository: ModelRepository,
+    private val objectMapper: ObjectMapper
+) : ControllableService() {
 
-    private val log by LoggerDelegate()
     override val serviceName = "ModelService"
 
     @PostConstruct
@@ -49,8 +60,68 @@ class ModelService(override var systemEventBus: SystemEventBus) : ControllableSe
         super.startup()
     }
 
-    fun processRawMessage(rawMessage: RawMessage) {
-        log.info("$rawMessage")
+    fun processRawMessage(rawMessage: RawMessage): ModelResource? {
+        return createModelIfNeeded(
+            source = rawMessage.source.toString(),
+            modelProperty = when (rawMessage.source) {
+                RawMessageSource.RTL433 -> "model"
+            },
+            rawJson = rawMessage.payload
+        )
+    }
+
+    private fun createModelIfNeeded(source: String, modelProperty: String, rawJson: String): ModelResource? {
+        val json = objectMapper.readTree(rawJson)
+        val modelName = json.get(modelProperty).textValue()
+        val jsonStructure = toJsonStructure(json)
+        val jsonString = objectMapper.writeValueAsString(jsonStructure)
+        val fingerprint = fingerprint(jsonString)
+
+        val foundModel = modelRepository.findByModel(modelName)
+        return if (fingerprint != foundModel?.fingerprint) {
+            if (foundModel != null) {
+                val model = foundModel.copy(
+                    jsonStructure = jsonString,
+                    fingerprint = fingerprint
+                ).withUpdateInfo()
+                modelRepository.update(model)
+            } else {
+                val model = ModelEntity(
+                    source = source,
+                    model = modelName,
+                    jsonStructure = jsonString,
+                    fingerprint = fingerprint
+                ).withCreateInfo()
+                modelRepository.persist(model)
+            }
+            return modelRepository.findByModel(modelName)?.toModelResource(objectMapper)
+        } else null
+    }
+
+    private fun fingerprint(input: String, algorithm: String = "SHA-256"): String {
+        val bytes = MessageDigest.getInstance(algorithm).digest(input.toByteArray(StandardCharsets.UTF_8))
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
+
+    private fun toJsonStructure(node: JsonNode): JsonNode {
+        return when {
+            node.isObject -> {
+                val sortedNode = objectMapper.createObjectNode()
+                node.fieldNames().asSequence().sorted().forEach { key ->
+                    sortedNode.set<JsonNode>(key, toJsonStructure(node[key]))
+                }
+                sortedNode
+            }
+            node.isArray -> {
+                val arrayPlaceholder = JsonNodeFactory.instance.textNode("array") // Represents an array
+                arrayPlaceholder
+            }
+            node.isTextual -> JsonNodeFactory.instance.textNode("string")
+            node.isNumber -> JsonNodeFactory.instance.textNode("number")
+            node.isBoolean -> JsonNodeFactory.instance.textNode("boolean")
+            node.isNull -> JsonNodeFactory.instance.textNode("null")
+            else -> JsonNodeFactory.instance.textNode("unknown")
+        }
     }
 
 }

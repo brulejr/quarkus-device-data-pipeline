@@ -21,9 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.common.service.crud
+package io.jrb.labs.model.resource
 
-import io.jrb.labs.common.model.Entity
-import io.quarkus.mongodb.panache.kotlin.PanacheMongoRepository
+import io.jrb.labs.model.model.SensorType
 
-interface EntityRepository<E: Entity<E>> : PanacheMongoRepository<E>
+data class SensorMappingResource(
+    val name: String,
+    val type: SensorType,
+    val classname: String,
+    val friendlyName: String? = null
+)

@@ -1,8 +1,14 @@
 quarkus:
+
   http:
     port: 3042
+
   log:
     level: INFO
+
+  mongodb:
+    connection-string: mongodb://admin:secret@localhost:27017/taskdb?authSource=admin
+    database: quarkus-device-data-pipeline
 
 mp:
   messaging:

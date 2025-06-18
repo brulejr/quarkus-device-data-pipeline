@@ -21,25 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.ingester.messaging
+package io.jrb.labs.model.model
 
-import io.jrb.labs.common.logging.LoggerDelegate
-import io.jrb.labs.messages.RawMessage
-import io.jrb.labs.messages.RawMessageSource
-import jakarta.enterprise.context.ApplicationScoped
-import org.eclipse.microprofile.reactive.messaging.Incoming
-import org.eclipse.microprofile.reactive.messaging.Outgoing
+import io.jrb.labs.model.resource.SensorMappingResource
 
-@ApplicationScoped
-class MqttIngester {
+data class SensorMapping(
+    val name: String,
+    val type: SensorType,
+    val classname: String,
+    val friendlyName: String? = null
+) {
 
-    private val log by LoggerDelegate()
-
-    @Incoming("rtl433-in")
-    @Outgoing("raw-message")
-    fun process(payload: String): RawMessage {
-        log.info("RTL433 payload: $payload")
-        return RawMessage(source = RawMessageSource.RTL433, payload = payload)
+    fun toSensorMappingResource(): SensorMappingResource {
+        return SensorMappingResource(
+            name = name,
+            type = type,
+            classname = classname,
+            friendlyName = friendlyName
+        )
     }
 
 }

@@ -24,6 +24,7 @@
 package io.jrb.labs.common.model
 
 import java.time.Instant
+import java.util.UUID
 
 interface Trackable<E : Entity<E>> {
     val createdOn: Instant?
@@ -32,8 +33,8 @@ interface Trackable<E : Entity<E>> {
     val modifiedBy: String?
     val version: Long?
 
-    fun withCreateInfo(guid: String?, userGuid: String?): E
+    fun withCreateInfo(guid: String? = UUID.randomUUID().toString(), userGuid: String? = null): E
 
-    fun withUpdateInfo(userGuid: String?): E
+    fun withUpdateInfo(userGuid: String? = null): E
 
 }

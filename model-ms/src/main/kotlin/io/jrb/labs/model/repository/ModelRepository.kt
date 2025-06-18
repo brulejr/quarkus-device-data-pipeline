@@ -21,25 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.ingester.messaging
+package io.jrb.labs.model.repository
 
-import io.jrb.labs.common.logging.LoggerDelegate
-import io.jrb.labs.messages.RawMessage
-import io.jrb.labs.messages.RawMessageSource
+import io.jrb.labs.model.model.ModelEntity
+import io.quarkus.mongodb.panache.kotlin.PanacheMongoRepository
 import jakarta.enterprise.context.ApplicationScoped
-import org.eclipse.microprofile.reactive.messaging.Incoming
-import org.eclipse.microprofile.reactive.messaging.Outgoing
 
 @ApplicationScoped
-class MqttIngester {
+class ModelRepository : PanacheMongoRepository<ModelEntity> {
 
-    private val log by LoggerDelegate()
-
-    @Incoming("rtl433-in")
-    @Outgoing("raw-message")
-    fun process(payload: String): RawMessage {
-        log.info("RTL433 payload: $payload")
-        return RawMessage(source = RawMessageSource.RTL433, payload = payload)
-    }
+    fun findByModel(model: String) = find("model",model).firstResult()
 
 }

@@ -23,6 +23,7 @@
  */
 package io.jrb.labs.model.messaging
 
+import io.jrb.labs.common.logging.LoggerDelegate
 import io.jrb.labs.messages.RawMessage
 import io.jrb.labs.model.service.ModelService
 import io.vertx.core.json.JsonObject
@@ -32,10 +33,13 @@ import org.eclipse.microprofile.reactive.messaging.Incoming
 @ApplicationScoped
 class RawMessageSubscriber(private val modelService: ModelService) {
 
+    private val log by LoggerDelegate()
+
     @Incoming("raw-message")
     fun process(json: JsonObject) {
         val rawMessage = json.mapTo(RawMessage::class.java)
-        modelService.processRawMessage(rawMessage)
+        val model = modelService.processRawMessage(rawMessage)
+        log.info("model: $model")
     }
 
 }

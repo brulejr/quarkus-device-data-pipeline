@@ -28,7 +28,7 @@ import java.time.Instant
 import java.util.UUID
 
 data class RawMessage(
-    @JsonProperty("source") val source: String,
+    @JsonProperty("source") val source: RawMessageSource,
     @JsonProperty("id") override val id: UUID = UUID.randomUUID(),
     @JsonProperty("timestamp") override val timestamp: Instant =  Instant.now(),
     @JsonProperty("payload") override val payload: String
