@@ -6,6 +6,9 @@ quarkus:
   log:
     level: INFO
 
+  jackson:
+    default-view-inclusion: false
+
   mongodb:
     connection-string: mongodb://admin:secret@localhost:27017/taskdb?authSource=admin
     database: quarkus-device-data-pipeline

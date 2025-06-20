@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "quarkus-device-data-pipeline",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

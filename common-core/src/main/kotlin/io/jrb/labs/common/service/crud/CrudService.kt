@@ -35,33 +35,38 @@ class CrudService<E : Entity<E>, R : Any>(
     private val toResource: suspend (E) -> R
 ) {
 
+    companion object {
+        const val FIELD_GUID = "guid"
+    }
+
     suspend fun create(entity: E): CrudOutcome<R> {
         return runCatching {
             val entityToCreate: E = entity.withCreateInfo(guidGenerator(), ownerGuidExtractor())
             repository.persist(entityToCreate)
-            findByGuid(entityToCreate.guid!!)
+            findByField(field = FIELD_GUID, value = entityToCreate.guid!!)
         }.getOrElse {
             CrudOutcome.Error("Failed to create $entityType: ${it.message}", it)
         }
     }
 
-    suspend fun findByGuid(
-        guid: String,
+    suspend fun findByField(
+        field: String,
+        value: String,
         filter: (E) -> Boolean = { true }
     ): CrudOutcome<R> {
         val ownerGuid = ownerGuidExtractor()
         val findFn = ownerGuid
-            ?.let { repository.find("guid = ?1 and ownerGuid = ?2", guid, ownerGuid) }
-            ?: repository.find("guid = ?1", guid)
+            ?.let { repository.find("$field = ?1 and ownerGuid = ?2", value, ownerGuid) }
+            ?: repository.find("$field = ?1", value)
         return runCatching {
             findFn.list().first { filter(it) }.let {
                 CrudOutcome.Success(toResource(it))
             }
         }.getOrElse {
             if (it is NoSuchElementException) {
-                CrudOutcome.NotFound(guid)
+                CrudOutcome.NotFound(value)
             } else {
-                CrudOutcome.Error("Failed to get $entityType with ownerGuid $ownerGuid and $guid: ${it.message}", it)
+                CrudOutcome.Error("Failed to get $entityType with ownerGuid $ownerGuid and $value: ${it.message}", it)
             }
         }
     }
@@ -80,37 +85,39 @@ class CrudService<E : Entity<E>, R : Any>(
         }
     }
 
-    suspend fun updateByGuid(
-        guid: String,
+    suspend fun updateByField(
+        field: String,
+        value: String,
         filter: (E) -> Boolean = { true },
         updatefn: suspend (E) -> E
     ): CrudOutcome<R> {
         val ownerGuid = ownerGuidExtractor()
         val findFn = ownerGuid
-            ?.let { repository.find("guid = ?1 and ownerGuid = ?2", guid, ownerGuid) }
-            ?: repository.find("guid = ?1", guid)
+            ?.let { repository.find("$field = ?1 and ownerGuid = ?2", value, ownerGuid) }
+            ?: repository.find("$field = ?1", value)
         return runCatching {
             findFn.list().first { filter(it) }.let { existing ->
                 repository.update(updatefn(existing.withUpdateInfo(ownerGuidExtractor())))
-                findByGuid(guid)
+                findByField(field, value)
             }
         }.getOrElse {
             if (it is NoSuchElementException) {
-                CrudOutcome.NotFound(guid)
+                CrudOutcome.NotFound(value)
             } else {
-                CrudOutcome.Error("Failed to update $entityType with ownerGuid $ownerGuid and guid $guid: ${it.message}", it)
+                CrudOutcome.Error("Failed to update $entityType with ownerGuid $ownerGuid and $field $value: ${it.message}", it)
             }
         }
     }
 
     suspend fun deleteByGuid(
-        guid: String,
+        field: String,
+        value: String,
         filter: (E) -> Boolean = { true }
     ): CrudOutcome<Unit> {
         val ownerGuid = ownerGuidExtractor()
         val findFn = ownerGuid
-            ?.let { repository.find("guid = ?1 and ownerGuid = ?2", guid, ownerGuid) }
-            ?: repository.find("guid = ?1", guid)
+            ?.let { repository.find("$field = ?1 and ownerGuid = ?2", value, ownerGuid) }
+            ?: repository.find("$field = ?1", value)
         return runCatching {
             findFn.list().first { filter(it) }.let { existing ->
                 repository.delete(existing)
@@ -118,9 +125,9 @@ class CrudService<E : Entity<E>, R : Any>(
             }
         }.getOrElse {
             if (it is NoSuchElementException) {
-                CrudOutcome.NotFound(guid)
+                CrudOutcome.NotFound(value)
             } else {
-                CrudOutcome.Error("Failed to delete $entityType with ownerGuid $ownerGuid and guid $guid: ${it.message}", it)
+                CrudOutcome.Error("Failed to delete $entityType with ownerGuid $ownerGuid and $field $value: ${it.message}", it)
             }
         }
     }

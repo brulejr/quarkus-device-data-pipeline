@@ -23,17 +23,39 @@
  */
 package io.jrb.labs.model.resource
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonView
 import com.fasterxml.jackson.databind.JsonNode
 import java.time.Instant
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class ModelResource(
+
+    @field:JsonView(ModelViews.List::class)
     val source: String,
+
+    @field:JsonView(ModelViews.List::class)
     val model: String,
+
+    @field:JsonView(ModelViews.List::class)
     val category: String?,
+
+    @field:JsonView(ModelViews.Details::class)
     val jsonStructure: JsonNode,
+
+    @field:JsonView(ModelViews.Details::class)
     val fingerprint: String,
+
+    @field:JsonView(ModelViews.Details::class)
     val sensors: List<SensorMappingResource>? = null,
+
+    @field:JsonView(ModelViews.Details::class)
     val createdOn: Instant? = null,
+
+    @field:JsonView(ModelViews.Details::class)
     val modifiedOn: Instant? = null,
+
+    @field:JsonView(ModelViews.Details::class)
     val version: Long? = null
+
 )

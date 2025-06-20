@@ -1,0 +1,27 @@
+meta {
+  name: Update Sensors (Acurite-Tower)
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{model_ms_url}}/api/models/:model/sensors
+  body: json
+  auth: inherit
+}
+
+params:path {
+  model: Acurite-Tower
+}
+
+body:json {
+  {
+    "model": "Acurite-Tower",
+    "category": "weather",
+    "sensors": [
+      { "name": "battery_ok", "type": "BINARY", "class": "battery", "friendlyName": "battery" },
+      { "name": "temperature_C", "type": "ANALOG", "class": "temperature" },
+      { "name": "humidity", "type": "ANALOG", "class": "humidity" }
+    ]
+  }
+}

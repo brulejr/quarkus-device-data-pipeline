@@ -1,0 +1,29 @@
+meta {
+  name: Update Sensors (DSC-Security)
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{model_ms_url}}/api/models/:model/sensors
+  body: json
+  auth: inherit
+}
+
+params:path {
+  model: DSC-Security
+}
+
+body:json {
+  {
+    "model": "DSC-Security",
+    "category": "security",
+    "sensors": [    
+      { "name": "closed", "type": "BINARY", "class": "door" },
+      { "name": "battery_ok", "type": "BINARY", "class": "battery", "friendlyName": "battery" },
+      { "name": "tamper", "type": "BINARY", "class": "tamper" },
+      { "name": "exception", "type": "ANALOG", "class": "problem" },
+      { "name": "timestamp", "type": "ANALOG", "class": "timestamp" }
+    ]
+  }
+}

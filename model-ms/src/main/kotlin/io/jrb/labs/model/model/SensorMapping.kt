@@ -24,12 +24,14 @@
 package io.jrb.labs.model.model
 
 import io.jrb.labs.model.resource.SensorMappingResource
+import org.bson.codecs.pojo.annotations.BsonCreator
+import org.bson.codecs.pojo.annotations.BsonProperty
 
-data class SensorMapping(
-    val name: String,
-    val type: SensorType,
-    val classname: String,
-    val friendlyName: String? = null
+data class SensorMapping @BsonCreator constructor(
+    @BsonProperty("name") val name: String,
+    @BsonProperty("type") val type: SensorType,
+    @BsonProperty("classname") val classname: String,
+    @BsonProperty("friendlyName") val friendlyName: String? = null
 ) {
 
     fun toSensorMappingResource(): SensorMappingResource {

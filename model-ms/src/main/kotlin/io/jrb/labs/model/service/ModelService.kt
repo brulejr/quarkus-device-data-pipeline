@@ -28,11 +28,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import io.jrb.labs.common.eventbus.SystemEventBus
 import io.jrb.labs.common.service.ControllableService
+import io.jrb.labs.common.service.crud.CrudOutcome
+import io.jrb.labs.common.service.crud.CrudService
 import io.jrb.labs.messages.RawMessage
 import io.jrb.labs.messages.RawMessageSource
 import io.jrb.labs.model.model.ModelEntity
 import io.jrb.labs.model.repository.ModelRepository
 import io.jrb.labs.model.resource.ModelResource
+import io.jrb.labs.model.resource.SensorsUpdateRequest
 import io.quarkus.runtime.Startup
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
@@ -50,6 +53,12 @@ class ModelService(
 
     override val serviceName = "ModelService"
 
+    private val crudService = CrudService(
+        "model",
+        repository = modelRepository,
+        toResource = { t -> t.toModelResource(objectMapper) },
+    )
+
     @PostConstruct
     override fun startup() {
         super.startup()
@@ -60,6 +69,20 @@ class ModelService(
         super.startup()
     }
 
+    fun findModelResource(modelName: String): CrudOutcome<ModelResource> {
+        return runCatching {
+            modelRepository.findByModel(modelName).let { foundModel ->
+                CrudOutcome.Success(foundModel!!.toModelResource(objectMapper))
+            }
+        }.getOrElse {
+            if (it is NoSuchElementException) {
+                CrudOutcome.NotFound(modelName)
+            } else {
+                CrudOutcome.Error("Failed to find model using name $modelName: ${it.message}", it)
+            }
+        }
+    }
+
     fun processRawMessage(rawMessage: RawMessage): ModelResource? {
         return createModelIfNeeded(
             source = rawMessage.source.toString(),
@@ -68,6 +91,19 @@ class ModelService(
             },
             rawJson = rawMessage.payload
         )
+    }
+
+    suspend fun retrieveModelResources(): CrudOutcome<List<ModelResource>> {
+        return crudService.getAll()
+    }
+
+    suspend fun updateSensors(modelName: String, request: SensorsUpdateRequest): CrudOutcome<ModelResource> {
+        return crudService.updateByField("model", modelName) { existingModel ->
+            existingModel.copy(
+                category = request.category,
+                sensors = request.sensors.map { it.toSensorMapping() }
+            )
+        }
     }
 
     private fun createModelIfNeeded(source: String, modelProperty: String, rawJson: String): ModelResource? {

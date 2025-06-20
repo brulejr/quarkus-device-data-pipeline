@@ -23,23 +23,27 @@
  */
 package io.jrb.labs.model.resource
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonView
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.jrb.labs.model.model.SensorMapping
 import io.jrb.labs.model.model.SensorType
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class SensorMappingResource(
+data class SensorMappingRequest @JsonCreator constructor(
+    @JsonProperty("name") val name: String,
+    @JsonProperty("type") val type: SensorType,
+    @JsonProperty("class") val classname: String,
+    @JsonProperty("friendlyName") val friendlyName: String? = null
+) {
 
-    @field:JsonView(ModelViews.Details::class)
-    val name: String,
+    fun toSensorMapping(): SensorMapping {
+        return SensorMapping(
+            name = name,
+            type = type,
+            classname = classname,
+            friendlyName = friendlyName
+        )
+    }
 
-    @field:JsonView(ModelViews.Details::class)
-    val type: SensorType,
-
-    @field:JsonView(ModelViews.Details::class)
-    val classname: String,
-
-    @field:JsonView(ModelViews.Details::class)
-    val friendlyName: String? = null
-
-)
+}
