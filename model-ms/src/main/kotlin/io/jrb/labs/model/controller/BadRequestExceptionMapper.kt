@@ -21,27 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.model.resource
+package io.jrb.labs.model.controller
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotEmpty
+import jakarta.ws.rs.BadRequestException
+import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
+import jakarta.ws.rs.ext.ExceptionMapper
+import jakarta.ws.rs.ext.Provider
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class SensorsUpdateRequest @JsonCreator constructor(
+@Provider
+class BadRequestExceptionMapper : ExceptionMapper<BadRequestException> {
+    override fun toResponse(exception: BadRequestException): Response {
+        val message = exception.message ?: "Bad request"
+        val entity = mapOf("error" to message)
 
-    @field:NotBlank(message="Model may not be blank")
-    @JsonProperty("model")
-    val model: String,
-
-    @field:NotBlank(message="Category may not be blank")
-    @JsonProperty("category")
-    val category: String,
-
-    @field:NotEmpty(message="Must have at least one sensor")
-    @JsonProperty("sensors", required = false)
-    val sensors: List<SensorMappingRequest>?
-
-)
+        return Response.status(Response.Status.BAD_REQUEST)
+            .type(MediaType.APPLICATION_JSON)
+            .entity(entity)
+            .build()
+    }
+}

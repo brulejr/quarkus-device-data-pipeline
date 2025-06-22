@@ -29,19 +29,24 @@ import io.jrb.labs.model.resource.ModelViews
 import io.jrb.labs.model.resource.SensorsUpdateRequest
 import io.jrb.labs.model.service.ModelService
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.validation.Valid
+import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import org.jboss.resteasy.reactive.RestPath
 
 @ApplicationScoped
 @Path("/api/models")
-class ModelController(private val modelService: ModelService) {
+open class ModelController(private val modelService: ModelService) {
 
     @GET
     @Path("/{modelName}")
+    @Produces(MediaType.APPLICATION_JSON)
     @JsonView(ModelViews.Details::class)
     suspend fun getModel(@RestPath modelName: String): Response {
         return crudResponse(
@@ -51,6 +56,7 @@ class ModelController(private val modelService: ModelService) {
     }
 
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @JsonView(ModelViews.List::class)
     suspend fun retrieve(): Response {
         return crudResponse(actionFn = { modelService.retrieveModelResources() })
@@ -58,8 +64,10 @@ class ModelController(private val modelService: ModelService) {
 
     @PUT
     @Path("/{modelName}/sensors")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @JsonView(ModelViews.Details::class)
-    suspend fun updateSensors(@RestPath modelName: String, request: SensorsUpdateRequest): Response {
+    open suspend fun updateSensors(@RestPath modelName: String, @Valid request: SensorsUpdateRequest): Response {
         return crudResponse(
             actionFn = { modelService.updateSensors(modelName, request) },
             notFoundFn = { throw NotFoundException("Unable to find model by name: $modelName") }

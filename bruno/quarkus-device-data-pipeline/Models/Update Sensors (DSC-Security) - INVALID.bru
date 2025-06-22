@@ -1,0 +1,22 @@
+meta {
+  name: Update Sensors (DSC-Security) - INVALID
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{model_ms_url}}/api/models/:model/sensors
+  body: json
+  auth: inherit
+}
+
+params:path {
+  model: DSC-Security
+}
+
+body:json {
+  {
+    "model": "DSC-Security",
+    "category": "security"
+  }
+}

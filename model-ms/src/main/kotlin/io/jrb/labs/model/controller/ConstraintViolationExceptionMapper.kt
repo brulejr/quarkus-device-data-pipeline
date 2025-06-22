@@ -21,27 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.model.resource
+package io.jrb.labs.model.controller
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotEmpty
+import jakarta.inject.Singleton
+import jakarta.validation.ConstraintViolationException
+import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
+import jakarta.ws.rs.ext.ExceptionMapper
+import jakarta.ws.rs.ext.Provider
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class SensorsUpdateRequest @JsonCreator constructor(
+@Provider
+@Singleton
+class ConstraintViolationExceptionMapper : ExceptionMapper<ConstraintViolationException> {
 
-    @field:NotBlank(message="Model may not be blank")
-    @JsonProperty("model")
-    val model: String,
+    override fun toResponse(exception: ConstraintViolationException): Response {
+        val errors = exception.constraintViolations.map {
+            mapOf(
+                "field" to it.propertyPath.toString(),
+                "message" to it.message
+            )
+        }
 
-    @field:NotBlank(message="Category may not be blank")
-    @JsonProperty("category")
-    val category: String,
+        val entity = mapOf("errors" to errors)
 
-    @field:NotEmpty(message="Must have at least one sensor")
-    @JsonProperty("sensors", required = false)
-    val sensors: List<SensorMappingRequest>?
-
-)
+        return Response.status(Response.Status.BAD_REQUEST)
+            .type(MediaType.APPLICATION_JSON)
+            .entity(entity)
+            .build()
+    }
+}

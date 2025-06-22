@@ -28,13 +28,26 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.jrb.labs.model.model.SensorMapping
 import io.jrb.labs.model.model.SensorType
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class SensorMappingRequest @JsonCreator constructor(
-    @JsonProperty("name") val name: String,
-    @JsonProperty("type") val type: SensorType,
-    @JsonProperty("class") val classname: String,
-    @JsonProperty("friendlyName") val friendlyName: String? = null
+
+    @field:NotBlank(message="Sensor name may not be blank")
+    @JsonProperty("name")
+    val name: String,
+
+    @field:NotNull(message="Sensor type is required")
+    @JsonProperty("type")
+    val type: SensorType,
+
+    @field:NotBlank(message="Sensor class may not be blank")
+    @JsonProperty("class")
+    val classname: String,
+
+    @JsonProperty("friendlyName")
+    val friendlyName: String? = null
 ) {
 
     fun toSensorMapping(): SensorMapping {

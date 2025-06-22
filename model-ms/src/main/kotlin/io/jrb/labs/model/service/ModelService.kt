@@ -101,7 +101,7 @@ class ModelService(
         return crudService.updateByField("model", modelName) { existingModel ->
             existingModel.copy(
                 category = request.category,
-                sensors = request.sensors.map { it.toSensorMapping() }
+                sensors = request.sensors?.map { it.toSensorMapping() }
             )
         }
     }
