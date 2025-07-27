@@ -1,0 +1,37 @@
+services:
+
+  ingester-ms:
+    container_name: ingester-ms
+    image: brulejr/ingester-ms:latest
+    ports:
+      - "3041:3041"
+    secrets:
+      - incoming_mqtt_host
+      - incoming_mqtt_port
+      - outgoing_rabbitmq_host
+      - outgoing_rabbitmq_port
+      - outgoing_rabbitmq_username
+      - outgoing_rabbitmq_password
+    environment:
+      PROFILE: "prod"
+    volumes:
+      - ./config:config/app:ro
+
+secrets:
+  incoming_mqtt_host:
+    file: secrets/incoming_mqtt_host
+  incoming_mqtt_port:
+    file: secrets/incoming_mqtt_host
+  outgoing_rabbitmq_host:
+    file: secrets/incoming_mqtt_host
+  outgoing_rabbitmq_port:
+    file: secrets/incoming_mqtt_host
+  outgoing_rabbitmq_username:
+    file: secrets/incoming_mqtt_host
+  outgoing_rabbitmq_password:
+    file: secrets/incoming_mqtt_host
+  mongo_username:
+    file: secrets/mongo_username.txt
+  mongo_password:
+    file: secrets/mongo_password.txt
+

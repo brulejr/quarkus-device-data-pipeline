@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.allopen")
     id("io.quarkus")
+    id("com.google.cloud.tools.jib")
 }
 
 dependencies {
@@ -15,4 +16,25 @@ dependencies {
 
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
+}
+
+jib {
+    from {
+        image = "eclipse-temurin:21-jdk-alpine"
+    }
+    container {
+        creationTime = "USE_CURRENT_TIMESTAMP"
+        entrypoint = listOf("/usr/local/bin/entrypoint.sh")
+        ports = listOf("3041")
+        workingDirectory = "/app"
+        environment = mapOf(
+            "SPRING_PROFILES_ACTIVE" to "prod",
+            "JAVA_OPTS" to "-Xms512m -Xmx1024m"
+        )
+
+    }
+    to {
+        image = "brulejr/ingester-ms"
+        tags = setOf("latest")
+    }
 }

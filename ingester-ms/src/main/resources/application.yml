@@ -11,9 +11,9 @@ mp:
     incoming:
       rtl433-in:
         connector: smallrye-mqtt
-        host: 10.10.30.23   # required
-        port: 1883          # also required
-        topic: rtl_433/04dc5b173331/events
+        host: ${INCOMING_MQTT_HOST:10.10.30.23}
+        port: ${INCOMING_MQTT_PORT:1883}
+        topic: rtl_433/c1f2d7d5512c/events
         qos: 1
         client-id: rtl433-client
         auto-acknowledge: true
@@ -25,7 +25,7 @@ mp:
         exchange: raw-message-exchange
         exchange-type: topic
         routing-key: raw.data
-        host: localhost
-        port: 5672
-        username: admin
-        password: secret
+        host: ${OUTGOING_RABBITMQ_HOST:localhost}
+        port: ${OUTGOING_RABBITMQ_PORT:5672}
+        username: ${OUTGOING_RABBITMQ_USERNAME:admin}
+        password: ${OUTGOING_RABBITMQ_PASSWORD:secret}
