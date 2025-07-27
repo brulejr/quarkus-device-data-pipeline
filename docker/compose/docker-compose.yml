@@ -21,15 +21,15 @@ secrets:
   incoming_mqtt_host:
     file: secrets/incoming_mqtt_host.txt
   incoming_mqtt_port:
-    file: secrets/incoming_mqtt_host.txt
+    file: secrets/incoming_mqtt_port.txt
   outgoing_rabbitmq_host:
-    file: secrets/incoming_mqtt_host.txt
+    file: secrets/outgoing_rabbitmq_host.txt
   outgoing_rabbitmq_port:
-    file: secrets/incoming_mqtt_host.txt
+    file: secrets/outgoing_rabbitmq_port.txt
   outgoing_rabbitmq_username:
-    file: secrets/incoming_mqtt_host.txt
+    file: secrets/outgoing_rabbitmq_username.txt
   outgoing_rabbitmq_password:
-    file: secrets/incoming_mqtt_host.txt
+    file: secrets/outgoing_rabbitmq_password.txt
   mongo_username:
     file: secrets/mongo_username.txt
   mongo_password:
