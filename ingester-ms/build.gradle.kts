@@ -35,6 +35,6 @@ jib {
     }
     to {
         image = "brulejr/ingester-ms"
-        tags = setOf("latest")
+        tags = setOf("latest", project.version.toString())
     }
 }
