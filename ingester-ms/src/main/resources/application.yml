@@ -25,7 +25,7 @@ mp:
         exchange: raw-message-exchange
         exchange-type: topic
         routing-key: raw.data
-        host: ${OUTGOING_RABBITMQ_HOST:localhost}
-        port: ${OUTGOING_RABBITMQ_PORT:5672}
-        username: ${OUTGOING_RABBITMQ_USERNAME:admin}
-        password: ${OUTGOING_RABBITMQ_PASSWORD:secret}
+        host: ${RABBITMQ_HOST:localhost}
+        port: ${RABBITMQ_PORT:5672}
+        username: ${RABBITMQ_CLIENT_USERNAME:admin}
+        password: ${RABBITMQ_CLIENT_PASSWORD:secret}

@@ -1,5 +1,22 @@
 services:
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/
+      - rabbitmq_logs:/var/log/rabbitmq
+    secrets:
+      - rabbitmq_admin_username
+      - rabbitmq_admin_password
+    environment:
+      RABBITMQ_DEFAULT_USER_FILE: /run/secrets/outgoing_rabbitmq_username
+      RABBITMQ_DEFAULT_PASS_FILE: secret
+
   ingester-ms:
     container_name: ingester-ms
     image: brulejr/ingester-ms:latest
@@ -8,12 +25,12 @@ services:
     secrets:
       - incoming_mqtt_host
       - incoming_mqtt_port
-      - outgoing_rabbitmq_host
-      - outgoing_rabbitmq_port
-      - outgoing_rabbitmq_username
-      - outgoing_rabbitmq_password
+      - rabbitmq_client_username
+      - rabbitmq_client_password
     environment:
       PROFILE: "prod"
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
     volumes:
       - ./config:config/app:ro
 
@@ -22,16 +39,19 @@ secrets:
     file: secrets/incoming_mqtt_host.txt
   incoming_mqtt_port:
     file: secrets/incoming_mqtt_port.txt
-  outgoing_rabbitmq_host:
-    file: secrets/outgoing_rabbitmq_host.txt
-  outgoing_rabbitmq_port:
-    file: secrets/outgoing_rabbitmq_port.txt
-  outgoing_rabbitmq_username:
-    file: secrets/outgoing_rabbitmq_username.txt
-  outgoing_rabbitmq_password:
-    file: secrets/outgoing_rabbitmq_password.txt
   mongo_username:
     file: secrets/mongo_username.txt
   mongo_password:
     file: secrets/mongo_password.txt
+  rabbitmq_admin_username:
+    file: secrets/rabbitmq_admin_username.txt
+  rabbitmq_admin_password:
+    file: secrets/rabbitmq_admin_password.txt
+  rabbitmq_client_username:
+    file: secrets/rabbitmq_client_username.txt
+  rabbitmq_client_password:
+    file: secrets/rabbitmq_client_password.txt
 
+volumes:
+  rabbitmq_data:
+  rabbitmq_logs:
