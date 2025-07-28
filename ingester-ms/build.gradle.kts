@@ -24,7 +24,6 @@ jib {
     }
     container {
         creationTime = "USE_CURRENT_TIMESTAMP"
-        entrypoint = listOf("/usr/local/bin/entrypoint.sh")
         ports = listOf("3041")
         workingDirectory = "/app"
         environment = mapOf(
