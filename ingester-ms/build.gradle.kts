@@ -30,7 +30,7 @@ jib {
             "SPRING_PROFILES_ACTIVE" to "prod",
             "JAVA_OPTS" to "-Xms512m -Xmx1024m"
         )
-
+        mainClass = "io.jrb.labs.ingester.messaging.MqttIngester"
     }
     to {
         image = "brulejr/ingester-ms"
