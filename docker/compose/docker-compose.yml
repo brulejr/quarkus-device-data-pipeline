@@ -7,15 +7,15 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq/
-      - rabbitmq_logs:/var/log/rabbitmq
     secrets:
       - rabbitmq_admin_username
       - rabbitmq_admin_password
-    environment:
-      RABBITMQ_DEFAULT_USER_FILE: /run/secrets/outgoing_rabbitmq_username
-      RABBITMQ_DEFAULT_PASS_FILE: secret
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/
+      - rabbitmq_logs:/var/log/rabbitmq
+      - ./rabbitmq/init-script.sh:/usr/local/bin/init-script.sh:ro
+    entrypoint: ["/usr/local/bin/init-script.sh"]
+    command: ["rabbitmq-server"]
 
   ingester-ms:
     container_name: ingester-ms
@@ -32,7 +32,8 @@ services:
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
     volumes:
-      - ./config:config/app:ro
+      - ./config:/config/app:ro
+    entrypoint: ["/usr/local/bin/init-script.sh"]
 
 secrets:
   incoming_mqtt_host:
