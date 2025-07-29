@@ -11,7 +11,7 @@ mp:
     incoming:
       rtl433-in:
         connector: smallrye-mqtt
-        host: ${INCOMING_MQTT_HOST:10.10.30.23}
+        host: ${INCOMING_MQTT_HOST}
         port: ${INCOMING_MQTT_PORT:1883}
         topic: rtl_433/c1f2d7d5512c/events
         qos: 1
@@ -27,5 +27,5 @@ mp:
         routing-key: raw.data
         host: ${RABBITMQ_HOST:localhost}
         port: ${RABBITMQ_PORT:5672}
-        username: ${RABBITMQ_CLIENT_USERNAME:admin}
-        password: ${RABBITMQ_CLIENT_PASSWORD:secret}
+        username: ${RABBITMQ_CLIENT_USERNAME}
+        password: ${RABBITMQ_CLIENT_PASSWORD}

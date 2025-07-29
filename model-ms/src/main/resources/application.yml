@@ -10,7 +10,7 @@ quarkus:
     default-view-inclusion: false
 
   mongodb:
-    connection-string: mongodb://admin:secret@localhost:27017/taskdb?authSource=admin
+    connection-string: mongodb://${MONGODB_CLIENT_USERNAME}:${MONGODB_CLIENT_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}?authSource=admin
     database: quarkus-device-data-pipeline
 
 mp:
@@ -26,7 +26,7 @@ mp:
         routing-key: raw.#
         auto-bind-exchange: true
         declare: true
-        host: localhost
-        port: 5672
-        username: admin
-        password: secret
+        host: ${RABBITMQ_HOST:localhost}
+        port: ${RABBITMQ_PORT:5672}
+        username: ${RABBITMQ_CLIENT_USERNAME}
+        password: ${RABBITMQ_CLIENT_PASSWORD}
