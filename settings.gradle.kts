@@ -3,5 +3,6 @@ include(
     "common-core",
     "messages",
     "ingester-ms",
-    "model-ms"
+    "model-ms",
+    "device-ms"
 )

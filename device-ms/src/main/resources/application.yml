@@ -1,0 +1,20 @@
+quarkus:
+  http:
+    port: 3043
+  log:
+    level: INFO
+
+mp:
+  messaging:
+
+    # RabbitMQ
+    outgoing:
+      raw-message:
+        connector: smallrye-rabbitmq
+        exchange: raw-message-exchange
+        exchange-type: topic
+        routing-key: raw.data
+        host: ${RABBITMQ_HOST:localhost}
+        port: ${RABBITMQ_PORT:5672}
+        username: ${RABBITMQ_CLIENT_USERNAME}
+        password: ${RABBITMQ_CLIENT_PASSWORD}
