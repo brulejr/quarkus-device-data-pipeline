@@ -22,6 +22,10 @@ jib {
     from {
         image = "eclipse-temurin:21-jdk-alpine"
     }
+    to {
+        image = "brulejr/ingester-ms"
+        tags = setOf("latest", project.version.toString())
+    }
     container {
         creationTime = "USE_CURRENT_TIMESTAMP"
         ports = listOf("3041")
@@ -30,10 +34,14 @@ jib {
             "SPRING_PROFILES_ACTIVE" to "prod",
             "JAVA_OPTS" to "-Xms512m -Xmx1024m"
         )
-        mainClass = "io.jrb.labs.ingester.messaging.MqttIngester"
+        entrypoint = listOf("java", "-jar", "/app/quarkus-run.jar")
     }
-    to {
-        image = "brulejr/ingester-ms"
-        tags = setOf("latest", project.version.toString())
+    extraDirectories {
+        paths {
+            path {
+                setFrom(file("build/quarkus-app").toPath())
+                into = "/app"
+            }
+        }
     }
 }

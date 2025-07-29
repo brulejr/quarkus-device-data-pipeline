@@ -32,7 +32,8 @@ services:
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
     volumes:
-      - ./config:/config/app:ro
+      - ./ingester-ms/config:/config/app:ro
+      - ./ingester-ms/init-script.sh:/usr/local/bin/init-script.sh:ro
     entrypoint: ["/usr/local/bin/init-script.sh"]
 
 secrets:
