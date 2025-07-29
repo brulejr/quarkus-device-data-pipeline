@@ -1,5 +1,21 @@
 services:
 
+  mongodb:
+    container_name: mongodb
+    image: mongo:4.2.3-bionic
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    secrets:
+      - mongodb_username
+      - mongodb_password
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME_FILE=/run/secrets/mongodb_username
+      - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/mongodb_password
+    volumes:
+      - mongodb_data:/data/db
+    command: [--bind_ip_all]
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -36,15 +52,36 @@ services:
       - ./ingester-ms/init-script.sh:/usr/local/bin/init-script.sh:ro
     entrypoint: ["/usr/local/bin/init-script.sh"]
 
+  model-ms:
+    container_name: model-ms
+    image: brulejr/model-ms:latest
+    ports:
+      - "3042:3042"
+    secrets:
+      - mongodb_username
+      - mongodb_password
+      - rabbitmq_client_username
+      - rabbitmq_client_password
+    environment:
+      PROFILE: "prod"
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+    volumes:
+      - ./model-ms/config:/config/app:ro
+      - ./model-ms/init-script.sh:/usr/local/bin/init-script.sh:ro
+    entrypoint: ["/usr/local/bin/init-script.sh"]
+
 secrets:
   incoming_mqtt_host:
     file: secrets/incoming_mqtt_host.txt
   incoming_mqtt_port:
     file: secrets/incoming_mqtt_port.txt
-  mongo_username:
-    file: secrets/mongo_username.txt
-  mongo_password:
-    file: secrets/mongo_password.txt
+  mongodb_username:
+    file: secrets/mongodb_username.txt
+  mongodb_password:
+    file: secrets/mongodb_password.txt
   rabbitmq_admin_username:
     file: secrets/rabbitmq_admin_username.txt
   rabbitmq_admin_password:
@@ -55,5 +92,6 @@ secrets:
     file: secrets/rabbitmq_client_password.txt
 
 volumes:
+  mongodb_data:
   rabbitmq_data:
   rabbitmq_logs:

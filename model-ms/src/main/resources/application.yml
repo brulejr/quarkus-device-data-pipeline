@@ -10,7 +10,7 @@ quarkus:
     default-view-inclusion: false
 
   mongodb:
-    connection-string: mongodb://${MONGODB_CLIENT_USERNAME}:${MONGODB_CLIENT_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}?authSource=admin
+    connection-string: mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}?authSource=admin
     database: quarkus-device-data-pipeline
 
 mp:
