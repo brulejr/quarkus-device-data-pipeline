@@ -73,6 +73,27 @@ services:
       - ./model-ms/init-script.sh:/usr/local/bin/init-script.sh:ro
     entrypoint: ["/usr/local/bin/init-script.sh"]
 
+  device-ms:
+    container_name: device-ms
+    image: brulejr/device-ms:latest
+    ports:
+      - "3043:3043"
+    secrets:
+      - mongodb_username
+      - mongodb_password
+      - rabbitmq_client_username
+      - rabbitmq_client_password
+    environment:
+      PROFILE: "prod"
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+    volumes:
+      - ./device-ms/config:/config/app:ro
+      - ./device-ms/init-script.sh:/usr/local/bin/init-script.sh:ro
+    entrypoint: ["/usr/local/bin/init-script.sh"]
+
 secrets:
   incoming_mqtt_host:
     file: secrets/incoming_mqtt_host.txt
