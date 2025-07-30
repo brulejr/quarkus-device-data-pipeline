@@ -21,23 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.ingester.messaging
+package io.jrb.labs.device.messaging
 
 import io.jrb.labs.common.logging.LoggerDelegate
 import io.jrb.labs.messages.RawMessage
-import io.vertx.core.json.JsonObject
+import io.jrb.labs.messages.RawMessageSource
 import jakarta.enterprise.context.ApplicationScoped
 import org.eclipse.microprofile.reactive.messaging.Incoming
+import org.eclipse.microprofile.reactive.messaging.Outgoing
 
 @ApplicationScoped
-class RawMessageSubscriber() {
+class MqttIngester {
 
     private val log by LoggerDelegate()
 
-    @Incoming("raw-message")
-    fun process(json: JsonObject) {
-        val rawMessage = json.mapTo(RawMessage::class.java)
-        log.info("rawMessage: $rawMessage")
+    @Incoming("rtl433-in")
+    @Outgoing("raw-message")
+    fun process(payload: String): RawMessage {
+        log.info("RTL433 payload: $payload")
+        return RawMessage(source = RawMessageSource.RTL433, payload = payload)
     }
 
 }

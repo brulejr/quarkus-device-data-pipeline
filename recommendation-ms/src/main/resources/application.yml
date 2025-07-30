@@ -1,6 +1,6 @@
 quarkus:
   http:
-    port: 3044
+    port: 3043
   log:
     level: INFO
 

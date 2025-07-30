@@ -4,5 +4,6 @@ include(
     "messages",
     "ingester-ms",
     "model-ms",
-    "device-ms"
+    "device-ms",
+    "recommendation-ms"
 )
