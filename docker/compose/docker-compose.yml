@@ -73,11 +73,32 @@ services:
       - ./model-ms/init-script.sh:/usr/local/bin/init-script.sh:ro
     entrypoint: ["/usr/local/bin/init-script.sh"]
 
+  recommendation-ms:
+    container_name: recommendation-ms
+    image: brulejr/recommendation-ms:latest
+    ports:
+      - "3043:3043"
+    secrets:
+      - mongodb_username
+      - mongodb_password
+      - rabbitmq_client_username
+      - rabbitmq_client_password
+    environment:
+      PROFILE: "prod"
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+    volumes:
+      - ./recommendation-ms/config:/config/app:ro
+      - ./recommendation-ms/init-script.sh:/usr/local/bin/init-script.sh:ro
+    entrypoint: ["/usr/local/bin/init-script.sh"]
+
   device-ms:
     container_name: device-ms
     image: brulejr/device-ms:latest
     ports:
-      - "3043:3043"
+      - "3044:3044"
     secrets:
       - mongodb_username
       - mongodb_password
