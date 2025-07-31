@@ -14,9 +14,6 @@ dependencies {
     implementation("io.quarkus:quarkus-messaging-mqtt")
     implementation("io.quarkus:quarkus-messaging-rabbitmq")
 
-    implementation("io.quarkus:quarkus-rest-jackson")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
 }

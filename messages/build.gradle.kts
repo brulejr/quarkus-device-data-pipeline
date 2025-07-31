@@ -5,6 +5,4 @@ plugins {
 }
 
 dependencies {
-    api("io.quarkus:quarkus-kotlin")
-    api("io.quarkus:quarkus-jackson")
 }
