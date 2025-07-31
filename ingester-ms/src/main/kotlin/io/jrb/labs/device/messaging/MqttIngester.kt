@@ -38,7 +38,7 @@ class MqttIngester {
     @Incoming("rtl433-in")
     @Outgoing("raw-message")
     fun process(payload: String): RawMessage {
-        log.info("RTL433 payload: $payload")
+        log.info("Raw payload: $payload")
         return RawMessage(source = RawMessageSource.RTL433, payload = payload)
     }
 
