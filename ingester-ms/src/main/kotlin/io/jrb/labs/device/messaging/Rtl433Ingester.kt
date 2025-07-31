@@ -32,13 +32,13 @@ import jakarta.enterprise.context.ApplicationScoped
 import org.eclipse.microprofile.reactive.messaging.Incoming
 import org.eclipse.microprofile.reactive.messaging.Outgoing
 
-@ApplicationScoped
+//@ApplicationScoped
 class Rtl433Ingester(private val objectMapper: ObjectMapper) {
 
     private val log by LoggerDelegate()
 
-    @Incoming("rtl433-in")
-    @Outgoing("rtl433-message")
+//    @Incoming("rtl433-in")
+//    @Outgoing("rtl433-message")
     fun process(payload: String): Rtl433Message {
         log.info("Raw payload: $payload")
         val rtl433Data = objectMapper.convertValue(payload, Rtl433Data::class.java)
