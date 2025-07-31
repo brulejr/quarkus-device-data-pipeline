@@ -10,5 +10,7 @@ dependencies {
     api("io.quarkus:quarkus-rest")
     api("io.quarkus:quarkus-mongodb-panache-kotlin")
 
+    api("com.fasterxml.jackson.module:jackson-module-kotlin")
+
     testImplementation("io.quarkus:quarkus-junit5")
 }
