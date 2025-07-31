@@ -25,10 +25,10 @@ package io.jrb.labs.messages.datatypes
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.time.Instant
 
-@JsonDeserialize(builder = Rtl433Data.Builder::class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class Rtl433Data(
     override val model: String,
     override val id: String,
@@ -36,32 +36,14 @@ data class Rtl433Data(
     override val name: String? = null,
     override val type: String? = null,
     override val area: String? = null,
+    @JsonAnySetter
     private val properties: Map<String, Any?> = emptyMap(),
 ) : Device {
 
     operator fun contains(key: String): Boolean = properties.containsKey(key)
-
     operator fun get(key: String): Any? = properties[key]
 
     @JsonAnyGetter
     fun getProperties(): Map<String, Any?> = properties
-
-    class Builder(private var model: String, private var id: String, private var time: Instant = Instant.now()) {
-
-        private val properties: MutableMap<String, Any?> = mutableMapOf()
-
-        fun build() = Rtl433Data(
-            time = time,
-            model = model,
-            id = id,
-            properties = properties.toMap()
-        )
-
-        @JsonAnySetter
-        private fun setProperty(key: String, value: Any?) {
-            properties[key] = value
-        }
-
-    }
 
 }
