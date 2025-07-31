@@ -17,6 +17,7 @@ mp:
         qos: 1
         client-id: rtl433-client
         auto-acknowledge: true
+        broadcast: true
 
     # RabbitMQ
     outgoing:
