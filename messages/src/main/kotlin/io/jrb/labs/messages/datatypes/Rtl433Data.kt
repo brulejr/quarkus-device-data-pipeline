@@ -25,10 +25,10 @@ package io.jrb.labs.messages.datatypes
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import java.time.Instant
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = Rtl433Data.Builder::class)
 data class Rtl433Data(
     override val model: String,
     override val id: String,
@@ -36,14 +36,40 @@ data class Rtl433Data(
     override val name: String? = null,
     override val type: String? = null,
     override val area: String? = null,
-    @JsonAnySetter
     private val properties: Map<String, Any?> = emptyMap(),
 ) : Device {
 
     operator fun contains(key: String): Boolean = properties.containsKey(key)
+
     operator fun get(key: String): Any? = properties[key]
 
     @JsonAnyGetter
     fun getProperties(): Map<String, Any?> = properties
+
+    class Builder {
+
+        private var model: String? = null
+        private var id: String? = null
+        private var time: Instant = Instant.now()
+        private val properties: MutableMap<String, Any?> = mutableMapOf()
+
+        fun model(model: String) = apply { this.model = model }
+        fun id(id: String) = apply { this.id = id }
+        fun time(time: Instant) = apply { this.time = time }
+
+        @JsonAnySetter
+        fun setProperty(key: String, value: Any?) = apply {
+            properties[key] = value
+        }
+
+        fun build(): Rtl433Data {
+            return Rtl433Data(
+                model = requireNotNull(model) { "model must not be null" },
+                id = requireNotNull(id) { "id must not be null" },
+                time = time,
+                properties = properties.toMap()
+            )
+        }
+    }
 
 }
