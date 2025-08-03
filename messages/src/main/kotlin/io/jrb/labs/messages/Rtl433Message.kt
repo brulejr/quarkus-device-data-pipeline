@@ -24,7 +24,7 @@
 package io.jrb.labs.messages
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import io.jrb.labs.messages.datatypes.Rtl433Data
+import io.jrb.labs.datatypes.Rtl433Data
 import java.time.Instant
 import java.util.UUID
 

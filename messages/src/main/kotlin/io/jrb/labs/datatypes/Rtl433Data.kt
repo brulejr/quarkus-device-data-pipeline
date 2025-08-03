@@ -21,15 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.messages.datatypes
+package io.jrb.labs.datatypes
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import java.time.Instant
 
-interface Device {
-    val id: String
-    val model: String
-    val time: Instant
-    val name: String?
-    val type: String?
-    val area: String?
+@JsonDeserialize(builder = Rtl433DataBuilder::class)
+data class Rtl433Data(
+    override val model: String,
+    override val id: String,
+    override val time: Instant,
+    override val name: String? = null,
+    override val type: String? = null,
+    override val area: String? = null,
+    private val properties: Map<String, Any?> = emptyMap(),
+) : Device {
+
+    @JsonAnyGetter
+    fun getProperties(): Map<String, Any?> = properties
+
+    operator fun contains(key: String): Boolean = properties.containsKey(key)
+    operator fun get(key: String): Any? = properties[key]
+
 }

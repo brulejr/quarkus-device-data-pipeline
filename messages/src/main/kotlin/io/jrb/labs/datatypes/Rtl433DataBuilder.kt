@@ -21,29 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.ingester.messaging
+package io.jrb.labs.datatypes
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import io.jrb.labs.common.logging.LoggerDelegate
-import io.jrb.labs.messages.RawMessage
-import io.jrb.labs.messages.RawMessageSource
-import io.jrb.labs.datatypes.Rtl433Data
-import jakarta.enterprise.context.ApplicationScoped
-import org.eclipse.microprofile.reactive.messaging.Incoming
-import org.eclipse.microprofile.reactive.messaging.Outgoing
+import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder
+import java.time.Instant
 
-@ApplicationScoped
-class Rtl433Ingester(private val objectMapper: ObjectMapper) {
+@JsonPOJOBuilder(withPrefix = "")
+class Rtl433DataBuilder {
 
-    private val log by LoggerDelegate()
+    private var model: String? = null
+    private var id: String? = null
+    private var time: Instant = Instant.now()
+    private val properties: MutableMap<String, Any?> = mutableMapOf()
 
-    @Incoming("rtl433-in")
-    @Outgoing("raw-message")
-    fun process(payload: String): RawMessage {
-        log.info("Raw payload: $payload")
-        val rtl433Data = objectMapper.readValue(payload, Rtl433Data::class.java)
-        log.info("RTL433 payload: $rtl433Data")
-        return RawMessage(source = RawMessageSource.RTL433, payload = payload)
+    fun model(model: String) = apply { this.model = model }
+    fun id(id: String) = apply { this.id = id }
+    fun time(time: Instant) = apply { this.time = time }
+
+    @JsonAnySetter
+    fun setProperty(key: String, value: Any?) = apply {
+        properties[key] = value
+    }
+
+    fun build(): Rtl433Data {
+        return Rtl433Data(
+            model = requireNotNull(model),
+            id = requireNotNull(id),
+            time = time,
+            properties = properties.toMap()
+        )
     }
 
 }
