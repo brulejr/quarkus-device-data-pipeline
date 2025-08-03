@@ -41,7 +41,7 @@ class Rtl433Ingester(private val objectMapper: ObjectMapper) {
     @Outgoing("raw-message")
     fun process(payload: String): RawMessage {
         log.info("Raw payload: $payload")
-        val rtl433Data = objectMapper.convertValue(payload, Rtl433Data::class.java)
+        val rtl433Data = objectMapper.readValue(payload, Rtl433Data::class.java)
         log.info("RTL433 payload: $rtl433Data")
         return RawMessage(source = RawMessageSource.RTL433, payload = payload)
     }
