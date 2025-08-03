@@ -21,36 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.messages.datatypes
+package io.jrb.labs.datatypes
 
-import com.fasterxml.jackson.annotation.JsonAnySetter
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder
 import java.time.Instant
 
-@JsonPOJOBuilder(withPrefix = "")
-class Rtl433DataBuilder {
-
-    private var model: String? = null
-    private var id: String? = null
-    private var time: Instant = Instant.now()
-    private val properties: MutableMap<String, Any?> = mutableMapOf()
-
-    fun model(model: String) = apply { this.model = model }
-    fun id(id: String) = apply { this.id = id }
-    fun time(time: Instant) = apply { this.time = time }
-
-    @JsonAnySetter
-    fun setProperty(key: String, value: Any?) = apply {
-        properties[key] = value
-    }
-
-    fun build(): Rtl433Data {
-        return Rtl433Data(
-            model = requireNotNull(model),
-            id = requireNotNull(id),
-            time = time,
-            properties = properties.toMap()
-        )
-    }
-
+interface Device {
+    val id: String
+    val model: String
+    val time: Instant
+    val name: String?
+    val type: String?
+    val area: String?
 }

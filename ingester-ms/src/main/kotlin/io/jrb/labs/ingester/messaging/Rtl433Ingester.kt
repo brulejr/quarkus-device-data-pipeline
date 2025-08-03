@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.common.logging.LoggerDelegate
 import io.jrb.labs.messages.RawMessage
 import io.jrb.labs.messages.RawMessageSource
-import io.jrb.labs.messages.datatypes.Rtl433Data
+import io.jrb.labs.datatypes.Rtl433Data
 import jakarta.enterprise.context.ApplicationScoped
 import org.eclipse.microprofile.reactive.messaging.Incoming
 import org.eclipse.microprofile.reactive.messaging.Outgoing

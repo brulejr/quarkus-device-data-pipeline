@@ -21,15 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.messages.datatypes
+package io.jrb.labs.json
 
-import java.time.Instant
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.quarkus.jackson.ObjectMapperCustomizer
+import jakarta.enterprise.inject.Produces
+import jakarta.inject.Singleton
 
-interface Device {
-    val id: String
-    val model: String
-    val time: Instant
-    val name: String?
-    val type: String?
-    val area: String?
+@Singleton
+class JacksonCustomizer {
+    @Produces
+    @Singleton
+    fun customize(): ObjectMapperCustomizer = ObjectMapperCustomizer {
+        it.registerKotlinModule()
+    }
 }

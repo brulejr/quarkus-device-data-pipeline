@@ -21,18 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.messages
+package io.jrb.labs.datatypes
 
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.quarkus.jackson.ObjectMapperCustomizer
-import jakarta.enterprise.inject.Produces
-import jakarta.inject.Singleton
+import com.fasterxml.jackson.annotation.JsonAnyGetter
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import java.time.Instant
 
-@Singleton
-class JacksonCustomizer {
-    @Produces
-    @Singleton
-    fun customize(): ObjectMapperCustomizer = ObjectMapperCustomizer {
-        it.registerKotlinModule()
-    }
+@JsonDeserialize(builder = Rtl433DataBuilder::class)
+data class Rtl433Data(
+    override val model: String,
+    override val id: String,
+    override val time: Instant,
+    override val name: String? = null,
+    override val type: String? = null,
+    override val area: String? = null,
+    private val properties: Map<String, Any?> = emptyMap(),
+) : Device {
+
+    @JsonAnyGetter
+    fun getProperties(): Map<String, Any?> = properties
+
+    operator fun contains(key: String): Boolean = properties.containsKey(key)
+    operator fun get(key: String): Any? = properties[key]
+
 }
