@@ -5,5 +5,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":common-core"))
+    implementation("io.quarkus:quarkus-rest-jackson")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.3")
 }

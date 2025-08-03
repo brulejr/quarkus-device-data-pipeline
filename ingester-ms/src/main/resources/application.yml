@@ -3,6 +3,9 @@ quarkus:
     port: 3041
   log:
     level: INFO
+  rest:
+    json:
+      default: jackson
 
 mp:
   messaging:

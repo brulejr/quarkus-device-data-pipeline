@@ -23,25 +23,34 @@
  */
 package io.jrb.labs.messages.datatypes
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder
 import java.time.Instant
 
-@JsonDeserialize(builder = Rtl433DataBuilder::class)
-data class Rtl433Data(
-    override val model: String,
-    override val id: String,
-    override val time: Instant,
-    override val name: String? = null,
-    override val type: String? = null,
-    override val area: String? = null,
-    private val properties: Map<String, Any?> = emptyMap(),
-) : Device {
+@JsonPOJOBuilder(withPrefix = "")
+class Rtl433DataBuilder {
 
-    @JsonAnyGetter
-    fun getProperties(): Map<String, Any?> = properties
+    private var model: String? = null
+    private var id: String? = null
+    private var time: Instant = Instant.now()
+    private val properties: MutableMap<String, Any?> = mutableMapOf()
 
-    operator fun contains(key: String): Boolean = properties.containsKey(key)
-    operator fun get(key: String): Any? = properties[key]
+    fun model(model: String) = apply { this.model = model }
+    fun id(id: String) = apply { this.id = id }
+    fun time(time: Instant) = apply { this.time = time }
+
+    @JsonAnySetter
+    fun setProperty(key: String, value: Any?) = apply {
+        properties[key] = value
+    }
+
+    fun build(): Rtl433Data {
+        return Rtl433Data(
+            model = requireNotNull(model),
+            id = requireNotNull(id),
+            time = time,
+            properties = properties.toMap()
+        )
+    }
 
 }
