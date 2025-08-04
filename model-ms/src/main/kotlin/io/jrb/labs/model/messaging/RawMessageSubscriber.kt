@@ -40,7 +40,7 @@ class RawMessageSubscriber(private val modelService: ModelService) {
         log.info("rawMessage: {}", message)
         val rtl433Message = message.mapTo(Rtl433Message::class.java)
         log.info("rtl433Message: {}", rtl433Message)
-//        modelService.processRawMessage(rawMessage)
+        modelService.processRawMessage(rtl433Message)
     }
 
 }
