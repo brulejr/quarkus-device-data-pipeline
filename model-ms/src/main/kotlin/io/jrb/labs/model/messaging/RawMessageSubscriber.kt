@@ -26,6 +26,7 @@ package io.jrb.labs.model.messaging
 import io.jrb.labs.common.logging.LoggerDelegate
 import io.jrb.labs.messages.Rtl433Message
 import io.jrb.labs.model.service.ModelService
+import io.vertx.core.json.JsonObject
 import jakarta.enterprise.context.ApplicationScoped
 import org.eclipse.microprofile.reactive.messaging.Incoming
 
@@ -35,7 +36,7 @@ class RawMessageSubscriber(private val modelService: ModelService) {
     private val log by LoggerDelegate()
 
     @Incoming("raw-message")
-    fun process(message: Rtl433Message) {
+    fun process(message: JsonObject) {
         log.info("rawMessage: {}", message)
 //        val rawMessage = json.mapTo(RawMessage::class.java)
 //        modelService.processRawMessage(rawMessage)
