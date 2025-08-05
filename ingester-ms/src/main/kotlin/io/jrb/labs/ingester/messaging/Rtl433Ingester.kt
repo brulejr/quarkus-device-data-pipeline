@@ -25,9 +25,9 @@ package io.jrb.labs.ingester.messaging
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.common.logging.LoggerDelegate
-import io.jrb.labs.messages.RawMessage
-import io.jrb.labs.messages.RawMessageSource
 import io.jrb.labs.datatypes.Rtl433Data
+import io.jrb.labs.messages.RawMessageSource
+import io.jrb.labs.messages.Rtl433Message
 import jakarta.enterprise.context.ApplicationScoped
 import org.eclipse.microprofile.reactive.messaging.Incoming
 import org.eclipse.microprofile.reactive.messaging.Outgoing
@@ -39,11 +39,11 @@ class Rtl433Ingester(private val objectMapper: ObjectMapper) {
 
     @Incoming("rtl433-in")
     @Outgoing("raw-message")
-    fun process(payload: String): RawMessage {
+    fun process(payload: String): Rtl433Message {
         log.info("Raw payload: $payload")
         val rtl433Data = objectMapper.readValue(payload, Rtl433Data::class.java)
         log.info("RTL433 payload: $rtl433Data")
-        return RawMessage(source = RawMessageSource.RTL433, payload = payload)
+        return Rtl433Message(source = RawMessageSource.RTL433, payload = rtl433Data)
     }
 
 }

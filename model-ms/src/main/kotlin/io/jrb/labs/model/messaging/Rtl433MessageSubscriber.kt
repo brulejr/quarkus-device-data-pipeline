@@ -23,19 +23,24 @@
  */
 package io.jrb.labs.model.messaging
 
-import io.jrb.labs.messages.RawMessage
+import io.jrb.labs.common.logging.LoggerDelegate
+import io.jrb.labs.messages.Rtl433Message
 import io.jrb.labs.model.service.ModelService
 import io.vertx.core.json.JsonObject
 import jakarta.enterprise.context.ApplicationScoped
 import org.eclipse.microprofile.reactive.messaging.Incoming
 
 @ApplicationScoped
-class RawMessageSubscriber(private val modelService: ModelService) {
+class Rtl433MessageSubscriber(private val modelService: ModelService) {
+
+    private val log by LoggerDelegate()
 
     @Incoming("raw-message")
-    fun process(json: JsonObject) {
-        val rawMessage = json.mapTo(RawMessage::class.java)
-        modelService.processRawMessage(rawMessage)
+    fun process(message: JsonObject) {
+        log.info("rawMessage: {}", message)
+        val rtl433Message = message.mapTo(Rtl433Message::class.java)
+        log.info("rtl433Message: {}", rtl433Message)
+        modelService.processRawMessage(rtl433Message)
     }
 
 }

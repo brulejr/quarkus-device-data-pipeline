@@ -23,15 +23,12 @@
  */
 package io.jrb.labs.model.service
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import io.jrb.labs.common.eventbus.SystemEventBus
 import io.jrb.labs.common.service.ControllableService
 import io.jrb.labs.common.service.crud.CrudOutcome
 import io.jrb.labs.common.service.crud.CrudService
-import io.jrb.labs.messages.RawMessage
-import io.jrb.labs.messages.RawMessageSource
+import io.jrb.labs.messages.Rtl433Message
 import io.jrb.labs.model.model.ModelEntity
 import io.jrb.labs.model.repository.ModelRepository
 import io.jrb.labs.model.resource.ModelResource
@@ -83,14 +80,30 @@ class ModelService(
         }
     }
 
-    fun processRawMessage(rawMessage: RawMessage): ModelResource? {
-        return createModelIfNeeded(
-            source = rawMessage.source.toString(),
-            modelProperty = when (rawMessage.source) {
-                RawMessageSource.RTL433 -> "model"
-            },
-            rawJson = rawMessage.payload
-        )
+    fun processRawMessage(rtl433Message: Rtl433Message): ModelResource? {
+        val modelName = rtl433Message.payload.model
+        val jsonString = objectMapper.writeValueAsString(rtl433Message)
+        val fingerprint = fingerprint(jsonString)
+
+        val foundModel = modelRepository.findByModel(modelName)
+        return if (fingerprint != foundModel?.fingerprint) {
+            if (foundModel != null) {
+                val model = foundModel.copy(
+                    jsonStructure = jsonString,
+                    fingerprint = fingerprint
+                ).withUpdateInfo()
+                modelRepository.update(model)
+            } else {
+                val model = ModelEntity(
+                    source = rtl433Message.source.toString(),
+                    model = modelName,
+                    jsonStructure = jsonString,
+                    fingerprint = fingerprint
+                ).withCreateInfo()
+                modelRepository.persist(model)
+            }
+            return modelRepository.findByModel(modelName)?.toModelResource(objectMapper)
+        } else null
     }
 
     suspend fun retrieveModelResources(): CrudOutcome<List<ModelResource>> {
@@ -106,58 +119,9 @@ class ModelService(
         }
     }
 
-    private fun createModelIfNeeded(source: String, modelProperty: String, rawJson: String): ModelResource? {
-        val json = objectMapper.readTree(rawJson)
-        val modelName = json.get(modelProperty).textValue()
-        val jsonStructure = toJsonStructure(json)
-        val jsonString = objectMapper.writeValueAsString(jsonStructure)
-        val fingerprint = fingerprint(jsonString)
-
-        val foundModel = modelRepository.findByModel(modelName)
-        return if (fingerprint != foundModel?.fingerprint) {
-            if (foundModel != null) {
-                val model = foundModel.copy(
-                    jsonStructure = jsonString,
-                    fingerprint = fingerprint
-                ).withUpdateInfo()
-                modelRepository.update(model)
-            } else {
-                val model = ModelEntity(
-                    source = source,
-                    model = modelName,
-                    jsonStructure = jsonString,
-                    fingerprint = fingerprint
-                ).withCreateInfo()
-                modelRepository.persist(model)
-            }
-            return modelRepository.findByModel(modelName)?.toModelResource(objectMapper)
-        } else null
-    }
-
     private fun fingerprint(input: String, algorithm: String = "SHA-256"): String {
         val bytes = MessageDigest.getInstance(algorithm).digest(input.toByteArray(StandardCharsets.UTF_8))
         return bytes.joinToString("") { "%02x".format(it) }
-    }
-
-    private fun toJsonStructure(node: JsonNode): JsonNode {
-        return when {
-            node.isObject -> {
-                val sortedNode = objectMapper.createObjectNode()
-                node.fieldNames().asSequence().sorted().forEach { key ->
-                    sortedNode.set<JsonNode>(key, toJsonStructure(node[key]))
-                }
-                sortedNode
-            }
-            node.isArray -> {
-                val arrayPlaceholder = JsonNodeFactory.instance.textNode("array") // Represents an array
-                arrayPlaceholder
-            }
-            node.isTextual -> JsonNodeFactory.instance.textNode("string")
-            node.isNumber -> JsonNodeFactory.instance.textNode("number")
-            node.isBoolean -> JsonNodeFactory.instance.textNode("boolean")
-            node.isNull -> JsonNodeFactory.instance.textNode("null")
-            else -> JsonNodeFactory.instance.textNode("unknown")
-        }
     }
 
 }
