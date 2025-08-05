@@ -11,9 +11,12 @@ mp:
     outgoing:
       raw-message:
         connector: smallrye-rabbitmq
+        queue: model-queue
         exchange: raw-message-exchange
         exchange-type: topic
-        routing-key: raw.data
+        routing-key: raw.#
+        auto-bind-exchange: true
+        declare: true
         host: ${RABBITMQ_HOST:localhost}
         port: ${RABBITMQ_PORT:5672}
         username: ${RABBITMQ_CLIENT_USERNAME}
