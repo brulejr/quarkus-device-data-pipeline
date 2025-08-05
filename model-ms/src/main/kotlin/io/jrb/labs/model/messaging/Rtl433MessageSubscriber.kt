@@ -31,7 +31,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import org.eclipse.microprofile.reactive.messaging.Incoming
 
 @ApplicationScoped
-class RawMessageSubscriber(private val modelService: ModelService) {
+class Rtl433MessageSubscriber(private val modelService: ModelService) {
 
     private val log by LoggerDelegate()
 
