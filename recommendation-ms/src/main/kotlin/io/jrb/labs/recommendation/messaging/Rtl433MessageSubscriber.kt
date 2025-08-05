@@ -24,20 +24,20 @@
 package io.jrb.labs.recommendation.messaging
 
 import io.jrb.labs.common.logging.LoggerDelegate
-import io.jrb.labs.messages.RawMessage
+import io.jrb.labs.messages.Rtl433Message
 import io.vertx.core.json.JsonObject
 import jakarta.enterprise.context.ApplicationScoped
 import org.eclipse.microprofile.reactive.messaging.Incoming
 
 @ApplicationScoped
-class RawMessageSubscriber() {
+class Rtl433MessageSubscriber() {
 
     private val log by LoggerDelegate()
 
     @Incoming("raw-message")
-    fun process(json: JsonObject) {
-        val rawMessage = json.mapTo(RawMessage::class.java)
-        log.info("rawMessage: $rawMessage")
+    fun process(message: JsonObject) {
+        val rtl433Message = message.mapTo(Rtl433Message::class.java)
+        log.info("rtl433Message: {}", rtl433Message)
     }
 
 }

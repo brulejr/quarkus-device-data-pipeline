@@ -37,7 +37,6 @@ class Rtl433MessageSubscriber(private val modelService: ModelService) {
 
     @Incoming("raw-message")
     fun process(message: JsonObject) {
-        log.info("rawMessage: {}", message)
         val rtl433Message = message.mapTo(Rtl433Message::class.java)
         log.info("rtl433Message: {}", rtl433Message)
         modelService.processRawMessage(rtl433Message)
