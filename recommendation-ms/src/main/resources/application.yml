@@ -11,7 +11,7 @@ mp:
     outgoing:
       raw-message:
         connector: smallrye-rabbitmq
-        queue: model-queue
+        queue: recommendation-queue
         exchange: raw-message-exchange
         exchange-type: topic
         routing-key: raw.#
