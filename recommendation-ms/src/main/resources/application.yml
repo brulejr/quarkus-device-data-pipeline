@@ -8,7 +8,7 @@ mp:
   messaging:
 
     # RabbitMQ
-    outgoing:
+    incoming:
       raw-message:
         connector: smallrye-rabbitmq
         queue: recommendation-queue
