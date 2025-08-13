@@ -18,9 +18,8 @@ mp:
         port: ${INCOMING_MQTT_PORT:1883}
         topic: rtl_433/c1f2d7d5512c/events
         qos: 1
-        client-id: rtl433-client
+        client-id: rtl433-client-${random.uuid}
         auto-acknowledge: true
-#        broadcast: true
 
     # RabbitMQ
     outgoing:

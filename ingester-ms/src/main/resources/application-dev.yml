@@ -1,0 +1,31 @@
+quarkus:
+  rabbitmq:
+    devservices:
+      enabled: true
+      port: 5672          # fixed port mapping for AMQP
+      management-port: 15672 # fixed port mapping for HTTP UI
+      shared: true        # reuse the same container across restarts
+#  log:
+#    category:
+#      "io.smallrye.reactive.messaging.mqtt":
+#        level: DEBUG
+#      "io.vertx.mqtt":
+#        level: DEBUG
+#      "io.netty.handler.logging":
+#        level: DEBUG
+
+mp:
+  messaging:
+
+    # MQTT
+    incoming:
+      rtl433-in:
+        host: 10.10.30.23
+
+    # RabbitMQ
+    outgoing:
+      raw-message:
+        host: localhost
+        port: 5672
+        username:
+        password:
