@@ -29,32 +29,32 @@ import java.time.Duration
 open class LoadingL1L2Cache<K : CacheKey, V : CacheEntry<V>>(
     private val l1Cache: L1Cache<K, V>,
     private val store: CacheStore<K, V>,
-    private val ttl: Duration,
+    private val ttlL1Cache: Duration,
+    private val ttlL2Cache: Duration,
     private val loadingFn: suspend (K) -> V? = { null },
     private val fallbackFn: suspend (K) -> V? = { null }
 ) : LoadingCache<K, V> {
 
     override suspend fun get(key: K): V? {
         return l1Cache.get(key)
-            ?: store.get(key)?.also { l1Cache.put(key, it, ttl) }
+            ?: store.get(key)?.also { l1Cache.put(key, it, ttlL1Cache) }
             ?: try {
                 if (key.hasMinimumLoadingCriteria()) {
                     loadingFn(key)?.let { value ->
-                        l1Cache.put(key, value, ttl)
-                        store.put(key, value, ttl)
+                        l1Cache.put(key, value, ttlL1Cache)
+                        store.put(key, value, ttlL2Cache)
                     }
                 } else null
             } catch(_: Exception) { null }
             ?: fallbackFn(key)?.let { value ->
-                l1Cache.put(key, value, ttl)
-                store.put(key, value, ttl)
+                l1Cache.put(key, value, ttlL1Cache)
+                store.put(key, value, ttlL2Cache)
             }
     }
 
     override suspend fun put(key: K, value: V, ttl: Duration?) {
-        val effectiveTTL = ttl ?: this.ttl
-        l1Cache.put(key, value, effectiveTTL)
-        store.put(key, value, effectiveTTL)
+        l1Cache.put(key, value, ttlL1Cache)
+        store.put(key, value, ttl ?: this.ttlL2Cache)
     }
 
     override suspend fun invalidate(key: K) {

@@ -18,6 +18,6 @@ mp:
         auto-bind-exchange: true
         declare: true
         host: ${RABBITMQ_HOST:localhost}
-        port: ${RABBITMQ_PORT:5672}
-        username: ${RABBITMQ_CLIENT_USERNAME}
-        password: ${RABBITMQ_CLIENT_PASSWORD}
+        port: ${RABBITMQ_PORT:5671}
+        username: ${RABBITMQ_CLIENT_USERNAME:admin}
+        password: ${RABBITMQ_CLIENT_PASSWORD:secret}

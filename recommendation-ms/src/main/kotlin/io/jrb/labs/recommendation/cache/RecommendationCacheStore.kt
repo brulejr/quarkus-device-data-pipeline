@@ -21,41 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.recommendation.service
+package io.jrb.labs.recommendation.cache
 
-import io.jrb.labs.common.eventbus.SystemEventBus
-import io.jrb.labs.common.logging.LoggerDelegate
-import io.jrb.labs.common.service.ControllableService
-import io.jrb.labs.messages.Rtl433Message
-import io.jrb.labs.recommendation.cache.RecommendationLoadingCache
-import io.quarkus.runtime.Startup
-import jakarta.annotation.PostConstruct
-import jakarta.annotation.PreDestroy
-import jakarta.enterprise.context.ApplicationScoped
+import io.jrb.labs.common.cache.CacheStore
+import java.time.Duration
 
-@Startup
-@ApplicationScoped
-class RecomendationService(
-    override var systemEventBus: SystemEventBus,
-    private val recommendationCache: RecommendationLoadingCache
-) : ControllableService() {
+class RecommendationCacheStore(
+    private val repository: RecommendationCacheRepository
+) : CacheStore<RecommendationCacheKey, RecommendationCacheEntry> {
 
-    override val serviceName = "RecommendationService"
-
-    private val log by LoggerDelegate()
-
-    fun processRtl433Message(rtl433Message: Rtl433Message) {
-        log.info("rtl433Message: {}", rtl433Message)
+    override suspend fun get(key: RecommendationCacheKey): RecommendationCacheEntry? {
+        return repository.findByModelAndId(key.model, key.id)
     }
 
-    @PostConstruct
-    override fun startup() {
-        super.startup()
+    override suspend fun put(
+        key: RecommendationCacheKey,
+        value: RecommendationCacheEntry,
+        ttl: Duration?
+    ): RecommendationCacheEntry {
+        TODO("Not yet implemented")
     }
 
-    @PreDestroy
-    override fun shutdown() {
-        super.startup()
+    override suspend fun invalidate(key: RecommendationCacheKey) {
+        TODO("Not yet implemented")
     }
 
 }

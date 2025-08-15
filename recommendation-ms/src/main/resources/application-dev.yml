@@ -1,0 +1,18 @@
+quarkus:
+
+  devservices:
+    enabled: false
+
+  mongodb:
+    connection-string: mongodb://admin:secret@localhost:27017?authSource=admin
+
+mp:
+  messaging:
+
+    # RabbitMQ
+    incoming:
+      raw-message:
+        host: localhost
+        port: 5672
+        username: admin
+        password: secret
