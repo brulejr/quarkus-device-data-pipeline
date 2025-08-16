@@ -21,31 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.ingester.messaging
+package io.jrb.labs.common.logging
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import io.jrb.labs.common.logging.LoggerName
-import io.jrb.labs.datatypes.Rtl433Data
-import io.jrb.labs.messages.RawMessageSource
-import io.jrb.labs.messages.Rtl433Message
-import jakarta.enterprise.context.ApplicationScoped
-import jakarta.inject.Inject
-import org.eclipse.microprofile.reactive.messaging.Incoming
-import org.eclipse.microprofile.reactive.messaging.Outgoing
-import org.jboss.logging.Logger
+import jakarta.enterprise.context.Dependent
+import jakarta.enterprise.inject.Produces
+import jakarta.enterprise.inject.spi.InjectionPoint
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
-@ApplicationScoped
-class Rtl433Ingester @Inject constructor(
-    private val objectMapper: ObjectMapper,
-    @LoggerName private val log: Logger
-) {
+@Dependent
+class LoggerProducer {
 
-    @Incoming("rtl433-in")
-    @Outgoing("raw-message")
-    fun process(payload: String): Rtl433Message {
-        val rtl433Data = objectMapper.readValue(payload, Rtl433Data::class.java)
-        log.info("RTL433 payload: $rtl433Data")
-        return Rtl433Message(source = RawMessageSource.RTL433, payload = rtl433Data)
+    @Produces
+    fun produceLogger(injectionPoint: InjectionPoint): Logger {
+        // Try to get @LoggerName from the annotated parameter or field
+        val annotation = injectionPoint.annotated
+            .getAnnotation(LoggerName::class.java)
+
+        // Fallback to the declaring class
+        val className = annotation?.value?.takeIf { it.isNotEmpty() }
+            ?: injectionPoint.member.declaringClass.name
+
+        return LoggerFactory.getLogger(className)
     }
 
 }

@@ -21,31 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.ingester.messaging
+package io.jrb.labs.common.logging
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import io.jrb.labs.common.logging.LoggerName
-import io.jrb.labs.datatypes.Rtl433Data
-import io.jrb.labs.messages.RawMessageSource
-import io.jrb.labs.messages.Rtl433Message
-import jakarta.enterprise.context.ApplicationScoped
-import jakarta.inject.Inject
-import org.eclipse.microprofile.reactive.messaging.Incoming
-import org.eclipse.microprofile.reactive.messaging.Outgoing
-import org.jboss.logging.Logger
-
-@ApplicationScoped
-class Rtl433Ingester @Inject constructor(
-    private val objectMapper: ObjectMapper,
-    @LoggerName private val log: Logger
-) {
-
-    @Incoming("rtl433-in")
-    @Outgoing("raw-message")
-    fun process(payload: String): Rtl433Message {
-        val rtl433Data = objectMapper.readValue(payload, Rtl433Data::class.java)
-        log.info("RTL433 payload: $rtl433Data")
-        return Rtl433Message(source = RawMessageSource.RTL433, payload = rtl433Data)
-    }
-
-}
+@Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.FIELD)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class LoggerName(val value: String = "")
