@@ -27,7 +27,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.datatypes.Rtl433Data
 import io.jrb.labs.messages.RawMessageSource
 import io.jrb.labs.messages.Rtl433Message
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.jboss.logging.Logger
