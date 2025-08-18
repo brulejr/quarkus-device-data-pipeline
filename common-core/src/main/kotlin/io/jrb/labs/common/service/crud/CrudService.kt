@@ -55,10 +55,10 @@ class CrudService<E : Entity<E>, R : Any>(
         filter: (E) -> Boolean = { true }
     ): CrudOutcome<R> {
         val ownerGuid = ownerGuidExtractor()
-        val findFn = ownerGuid
-            ?.let { repository.find("$field = ?1 and ownerGuid = ?2", value, ownerGuid) }
-            ?: repository.find("$field = ?1", value)
         return runCatching {
+            val findFn = ownerGuid
+                ?.let { repository.find("$field = ?1 and ownerGuid = ?2", value, ownerGuid) }
+                ?: repository.find("$field = ?1", value)
             findFn.list().first { filter(it) }.let {
                 CrudOutcome.Success(toResource(it))
             }
@@ -73,10 +73,10 @@ class CrudService<E : Entity<E>, R : Any>(
 
     suspend fun getAll(filter: (E) -> Boolean = { true }): CrudOutcome<List<R>> {
         val ownerGuid = ownerGuidExtractor()
-        val findFn = ownerGuid
-            ?.let { repository.find("ownerGuid = ?1", ownerGuid) }
-            ?: repository.findAll()
         return runCatching {
+            val findFn = ownerGuid
+                ?.let { repository.find("ownerGuid = ?1", ownerGuid) }
+                ?: repository.findAll()
             findFn.list().filter { filter(it) }.map { toResource(it) }.let {
                 CrudOutcome.Success(it)
             }
@@ -92,10 +92,10 @@ class CrudService<E : Entity<E>, R : Any>(
         updatefn: suspend (E) -> E
     ): CrudOutcome<R> {
         val ownerGuid = ownerGuidExtractor()
-        val findFn = ownerGuid
-            ?.let { repository.find("$field = ?1 and ownerGuid = ?2", value, ownerGuid) }
-            ?: repository.find("$field = ?1", value)
         return runCatching {
+            val findFn = ownerGuid
+                ?.let { repository.find("$field = ?1 and ownerGuid = ?2", value, ownerGuid) }
+                ?: repository.find("$field = ?1", value)
             findFn.list().first { filter(it) }.let { existing ->
                 repository.update(updatefn(existing.withUpdateInfo(ownerGuidExtractor())))
                 findByField(field, value)
@@ -115,10 +115,10 @@ class CrudService<E : Entity<E>, R : Any>(
         filter: (E) -> Boolean = { true }
     ): CrudOutcome<Unit> {
         val ownerGuid = ownerGuidExtractor()
-        val findFn = ownerGuid
-            ?.let { repository.find("$field = ?1 and ownerGuid = ?2", value, ownerGuid) }
-            ?: repository.find("$field = ?1", value)
         return runCatching {
+            val findFn = ownerGuid
+                ?.let { repository.find("$field = ?1 and ownerGuid = ?2", value, ownerGuid) }
+                ?: repository.find("$field = ?1", value)
             findFn.list().first { filter(it) }.let { existing ->
                 repository.delete(existing)
                 CrudOutcome.Success(Unit)
