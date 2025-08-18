@@ -31,35 +31,35 @@ import java.util.concurrent.ThreadLocalRandom
 
 interface TestUtils {
 
-    fun randomBoolean() = RandomUtils.nextBoolean()
+    fun randomBoolean() = RandomUtils.secure().randomBoolean()
 
     fun <E : Enum<E>> randomEnum(enumClass: Class<E>): E {
-        val pos = RandomUtils.nextInt(0, enumClass.enumConstants.size - 1)
+        val pos = RandomUtils.secure().randomInt(0, enumClass.enumConstants.size - 1)
         return enumClass.enumConstants[pos]
     }
 
     fun randomGuid(): UUID = UUID.randomUUID()
 
-    fun randomInt(upperLimit: Int = 1000) = RandomUtils.nextInt(1, upperLimit)
+    fun randomInt(upperLimit: Int = 1000) = RandomUtils.secure().randomInt(1, upperLimit)
 
     fun <T> randomList(maxSize: Int = 3, supplier: () -> T): List<T> {
-        val size = RandomUtils.nextInt(1, maxSize)
+        val size = RandomUtils.secure().randomInt(1, maxSize)
         return (1..size).map { supplier.invoke() }
     }
 
     fun randomLong(upperLimit: Long = 1000L): Long = RandomUtils.nextLong(0, upperLimit)
 
     fun <K, V> randomMap(maxSize: Int = 3, keySupplier: () -> K, valueSupplier: () -> V): Map<K, V> {
-        val size = RandomUtils.nextInt(1, maxSize)
+        val size = RandomUtils.secure().randomInt(1, maxSize)
         return (1..size).associate { keySupplier.invoke() to valueSupplier.invoke() }
     }
 
     fun <T> randomSet(maxSize: Int = 3, supplier: () -> T): Set<T> {
-        val size = RandomUtils.nextInt(1, maxSize)
+        val size = RandomUtils.secure().randomInt(1, maxSize)
         return (1..size).map { supplier.invoke() }.toSet()
     }
 
-    fun randomString(): String = RandomStringUtils.randomAlphabetic(10)
+    fun randomString(): String = RandomStringUtils.secure().nextAlphanumeric(10)
 
     fun randomTimestamp(): Instant = Instant.ofEpochSecond(ThreadLocalRandom.current().nextInt().toLong())
 
