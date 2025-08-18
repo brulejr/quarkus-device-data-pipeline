@@ -23,16 +23,17 @@
  */
 package io.jrb.labs.common.service.crud
 
+import io.jrb.labs.common.test.TestUtils
 import io.mockk.every
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class CrudOutcomeTest {
+class CrudOutcomeTest : TestUtils {
 
     @Test
     fun `Success should contain provided data`() {
-        val testData = "test data"
+        val testData = randomString()
         val success = CrudOutcome.Success(testData)
 
         assertThat(success.data).isEqualTo(testData)
@@ -41,15 +42,20 @@ class CrudOutcomeTest {
 
     @Test
     fun `Success should work with different data types`() {
-        val stringSuccess = CrudOutcome.Success("string")
-        val intSuccess = CrudOutcome.Success(42)
-        val listSuccess = CrudOutcome.Success(listOf(1, 2, 3))
-        val customObjectSuccess = CrudOutcome.Success(TestEntity("id", "name"))
+        val stringData = randomString()
+        val intData = randomInt()
+        val listData = randomList<Int>(3, this::randomInt)
+        val objectData = TestEntity(randomString(), randomString())
 
-        assertThat(stringSuccess.data).isEqualTo("string")
-        assertThat(intSuccess.data).isEqualTo(42)
-        assertThat(listSuccess.data).containsExactly(1, 2, 3)
-        assertThat(customObjectSuccess.data).isEqualTo(TestEntity("id", "name"))
+        val stringSuccess = CrudOutcome.Success(stringData)
+        val intSuccess = CrudOutcome.Success(intData)
+        val listSuccess = CrudOutcome.Success(listData)
+        val customObjectSuccess = CrudOutcome.Success(objectData)
+
+        assertThat(stringSuccess.data).isEqualTo(stringData)
+        assertThat(intSuccess.data).isEqualTo(intData)
+        assertThat(listSuccess.data).containsAll(listData)
+        assertThat(customObjectSuccess.data).isEqualTo(objectData)
     }
 
     @Test
@@ -67,8 +73,8 @@ class CrudOutcomeTest {
 
     @Test
     fun `Success equality should work correctly`() {
-        val success1 = CrudOutcome.Success("data")
-        val success2 = CrudOutcome.Success("data")
+        val success1 = CrudOutcome.Success(randomString())
+        val success2 = CrudOutcome.Success(success1.data)
         val success3 = CrudOutcome.Success("different")
 
         assertThat(success1).isEqualTo(success2)
@@ -78,7 +84,7 @@ class CrudOutcomeTest {
 
     @Test
     fun `NotFound should contain provided id`() {
-        val testId = "123"
+        val testId = randomString()
         val notFound = CrudOutcome.NotFound(testId)
 
         assertThat(notFound.id).isEqualTo(testId)
@@ -87,9 +93,9 @@ class CrudOutcomeTest {
 
     @Test
     fun `NotFound equality should work correctly`() {
-        val notFound1 = CrudOutcome.NotFound("123")
-        val notFound2 = CrudOutcome.NotFound("123")
-        val notFound3 = CrudOutcome.NotFound("456")
+        val notFound1 = CrudOutcome.NotFound(randomString())
+        val notFound2 = CrudOutcome.NotFound(notFound1.id)
+        val notFound3 = CrudOutcome.NotFound(randomString())
 
         assertThat(notFound1).isEqualTo(notFound2)
         assertThat(notFound1).isNotEqualTo(notFound3)
@@ -98,7 +104,7 @@ class CrudOutcomeTest {
 
     @Test
     fun `Conflict should contain provided reason`() {
-        val testReason = "Entity already exists"
+        val testReason = randomString()
         val conflict = CrudOutcome.Conflict(testReason)
 
         assertThat(conflict.reason).isEqualTo(testReason)
@@ -107,9 +113,9 @@ class CrudOutcomeTest {
 
     @Test
     fun `Conflict equality should work correctly`() {
-        val conflict1 = CrudOutcome.Conflict("duplicate")
-        val conflict2 = CrudOutcome.Conflict("duplicate")
-        val conflict3 = CrudOutcome.Conflict("different reason")
+        val conflict1 = CrudOutcome.Conflict(randomString())
+        val conflict2 = CrudOutcome.Conflict(conflict1.reason)
+        val conflict3 = CrudOutcome.Conflict(randomString())
 
         assertThat(conflict1).isEqualTo(conflict2)
         assertThat(conflict1).isNotEqualTo(conflict3)
@@ -118,7 +124,7 @@ class CrudOutcomeTest {
 
     @Test
     fun `Invalid should contain provided reason`() {
-        val testReason = "Missing required field"
+        val testReason = randomString()
         val invalid = CrudOutcome.Invalid(testReason)
 
         assertThat(invalid.reason).isEqualTo(testReason)
@@ -127,9 +133,9 @@ class CrudOutcomeTest {
 
     @Test
     fun `Invalid equality should work correctly`() {
-        val invalid1 = CrudOutcome.Invalid("bad data")
-        val invalid2 = CrudOutcome.Invalid("bad data")
-        val invalid3 = CrudOutcome.Invalid("different error")
+        val invalid1 = CrudOutcome.Invalid(randomString())
+        val invalid2 = CrudOutcome.Invalid(invalid1.reason)
+        val invalid3 = CrudOutcome.Invalid(randomString())
 
         assertThat(invalid1).isEqualTo(invalid2)
         assertThat(invalid1).isNotEqualTo(invalid3)
@@ -138,8 +144,8 @@ class CrudOutcomeTest {
 
     @Test
     fun `Error should contain message and optional cause`() {
-        val testMessage = "Database connection failed"
-        val testCause = RuntimeException("Connection timeout")
+        val testMessage = randomString()
+        val testCause = RuntimeException(randomString())
 
         val errorWithCause = CrudOutcome.Error(testMessage, testCause)
         val errorWithoutCause = CrudOutcome.Error(testMessage)
@@ -152,24 +158,26 @@ class CrudOutcomeTest {
 
     @Test
     fun `Error should work with mocked exceptions`() {
+        val mockExceptionMessage = randomString()
         val mockException = mockk<RuntimeException>()
-        every { mockException.message } returns "Mocked error message"
+        every { mockException.message } returns mockExceptionMessage
 
-        val error = CrudOutcome.Error("Service failed", mockException)
+        val serviceErrorMessage = randomString()
+        val error = CrudOutcome.Error(serviceErrorMessage, mockException)
 
-        assertThat(error.message).isEqualTo("Service failed")
+        assertThat(error.message).isEqualTo(serviceErrorMessage)
         assertThat(error.cause).isEqualTo(mockException)
-        assertThat(error.cause?.message).isEqualTo("Mocked error message")
+        assertThat(error.cause?.message).isEqualTo(mockExceptionMessage)
     }
 
     @Test
     fun `Error equality should work correctly`() {
-        val exception = RuntimeException("test")
-        val error1 = CrudOutcome.Error("message", exception)
-        val error2 = CrudOutcome.Error("message", exception)
-        val error3 = CrudOutcome.Error("different message", exception)
-        val error4 = CrudOutcome.Error("message", RuntimeException("different"))
-        val error5 = CrudOutcome.Error("message")
+        val exception = RuntimeException(randomString())
+        val error1 = CrudOutcome.Error(randomString(), exception)
+        val error2 = CrudOutcome.Error(error1.message, exception)
+        val error3 = CrudOutcome.Error(randomString(), exception)
+        val error4 = CrudOutcome.Error(error1.message, RuntimeException(randomString()))
+        val error5 = CrudOutcome.Error(error1.message)
 
         assertThat(error1).isEqualTo(error2)
         assertThat(error1).isNotEqualTo(error3)
@@ -180,11 +188,11 @@ class CrudOutcomeTest {
 
     @Test
     fun `Different outcome types should not be equal`() {
-        val success = CrudOutcome.Success("data")
-        val notFound = CrudOutcome.NotFound("123")
-        val conflict = CrudOutcome.Conflict("reason")
-        val invalid = CrudOutcome.Invalid("reason")
-        val error = CrudOutcome.Error("message")
+        val success = CrudOutcome.Success(randomString())
+        val notFound = CrudOutcome.NotFound(randomString())
+        val conflict = CrudOutcome.Conflict(randomString())
+        val invalid = CrudOutcome.Invalid(randomString())
+        val error = CrudOutcome.Error(randomString())
 
         val outcomes = listOf(success, notFound, conflict, invalid, error)
 
@@ -200,27 +208,32 @@ class CrudOutcomeTest {
 
     @Test
     fun `toString should provide meaningful representation`() {
-        val success = CrudOutcome.Success("data")
-        val notFound = CrudOutcome.NotFound("123")
-        val conflict = CrudOutcome.Conflict("duplicate")
-        val invalid = CrudOutcome.Invalid("bad format")
-        val error = CrudOutcome.Error("connection failed", RuntimeException("timeout"))
+        val successData = randomString()
+        val notFoundId = randomString()
+        val conflictReason = randomString()
+        val invalidReason = randomString()
+        val errorMessage = randomString()
+        val success = CrudOutcome.Success(successData)
+        val notFound = CrudOutcome.NotFound(notFoundId)
+        val conflict = CrudOutcome.Conflict(conflictReason)
+        val invalid = CrudOutcome.Invalid(invalidReason)
+        val error = CrudOutcome.Error(errorMessage, RuntimeException("timeout"))
 
-        assertThat(success.toString()).contains("Success", "data")
-        assertThat(notFound.toString()).contains("NotFound", "123")
-        assertThat(conflict.toString()).contains("Conflict", "duplicate")
-        assertThat(invalid.toString()).contains("Invalid", "bad format")
-        assertThat(error.toString()).contains("Error", "connection failed")
+        assertThat(success.toString()).contains("Success", successData)
+        assertThat(notFound.toString()).contains("NotFound", notFoundId)
+        assertThat(conflict.toString()).contains("Conflict", conflictReason)
+        assertThat(invalid.toString()).contains("Invalid", invalidReason)
+        assertThat(error.toString()).contains("Error", errorMessage)
     }
 
     @Test
     fun `Sealed class hierarchy should work with when expressions`() {
         val outcomes: List<CrudOutcome<String>> = listOf(
-            CrudOutcome.Success("data"),
-            CrudOutcome.NotFound("123"),
-            CrudOutcome.Conflict("duplicate"),
-            CrudOutcome.Invalid("bad format"),
-            CrudOutcome.Error("failed")
+            CrudOutcome.Success(randomString()),
+            CrudOutcome.NotFound(randomString()),
+            CrudOutcome.Conflict(randomString()),
+            CrudOutcome.Invalid(randomString()),
+            CrudOutcome.Error(randomString())
         )
 
         outcomes.forEach { outcome ->
@@ -238,7 +251,7 @@ class CrudOutcomeTest {
 
     @Test
     fun `Success should be contravariant in type parameter`() {
-        val stringSuccess: CrudOutcome<String> = CrudOutcome.Success("test")
+        val stringSuccess: CrudOutcome<String> = CrudOutcome.Success(randomString())
         val anySuccess: CrudOutcome<Any> = stringSuccess
 
         // This should compile without issues due to covariance of the type parameter
