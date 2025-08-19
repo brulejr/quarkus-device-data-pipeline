@@ -23,9 +23,9 @@
  */
 package io.jrb.labs.common.eventbus
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filter
@@ -34,9 +34,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 open class EventBus<E : Event>(
-    eventBusCapacity: Int = 100
+    eventBusCapacity: Int = 100,
+    dispatcher: CoroutineDispatcher = kotlinx.coroutines.Dispatchers.Default
 ) {
-    private val _scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private val _scope = CoroutineScope(dispatcher + SupervisorJob())
     private val _events = MutableSharedFlow<E>(extraBufferCapacity = eventBusCapacity)
 
     suspend fun publish(event: E) {
@@ -46,15 +47,16 @@ open class EventBus<E : Event>(
     fun send(event: E) = runBlocking { publish(event) }
 
     fun <T : E> subscribe(clazz: Class<T>, handler: suspend (T) -> Unit): Subscription {
-        val job = _scope.launch {
-            _events.filter { clazz.isInstance(it) }
+        val job = _scope.launch(start = CoroutineStart.UNDISPATCHED) { // important!
+            _events
+                .filter { clazz.isInstance(it) }
                 .map { clazz.cast(it)!! }
                 .collect { handler(it) }
         }
         return Subscription(job)
     }
 
-    class Subscription(private val job: Job) {
+    class Subscription(private val job: kotlinx.coroutines.Job) {
         fun cancel() = job.cancel()
     }
 
