@@ -32,14 +32,14 @@ class InMemoryL1Cache<K : CacheKey, V : CacheEntry<V>> : L1Cache<K, V> {
 
     override suspend fun get(key: K): V? {
         val entry = cache[key.lookupKey()] ?: return null
-        if (entry.expiresAt != null && Instant.now().isAfter(entry.expiresAt)) {
+        return if (Instant.now().isAfter(entry.expiresAt)) {
             invalidate(key)
-        }
-        return entry
+            null
+        } else entry
     }
 
     override suspend fun put(key: K, value: V, ttl: Duration?) {
-        val expiresAt = ttl?.let { Instant.now().plus(it) }
+        val expiresAt = Instant.now().plus(ttl ?: Duration.ZERO)
         cache[key.lookupKey()] = value.withExpiresAt(expiresAt)
     }
 

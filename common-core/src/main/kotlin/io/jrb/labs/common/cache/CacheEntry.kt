@@ -27,10 +27,10 @@ import java.time.Instant
 
 interface CacheEntry<V: CacheEntry<V>> {
 
-    val cachedAt: Instant?
+    val cachedAt: Instant
 
-    val expiresAt: Instant?
+    val expiresAt: Instant
 
-    fun withExpiresAt(expiresAt: Instant?): V
+    fun withExpiresAt(expiresAt: Instant): V
 
 }
