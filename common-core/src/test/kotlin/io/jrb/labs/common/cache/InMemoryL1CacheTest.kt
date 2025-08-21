@@ -23,13 +23,13 @@
  */
 package io.jrb.labs.common.cache
 
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 import java.time.Instant
@@ -42,6 +42,13 @@ class InMemoryL1CacheTest {
     private lateinit var mockKey: TestKey
     private lateinit var mockEntry: TestEntry
 
+    data class TestScenario(
+        val name: String,
+        val present: Boolean,
+        val expired: Boolean,
+        val expected: suspend (TestEntry?) -> Unit
+    )
+
     @BeforeEach
     fun setUp() {
         cache = InMemoryL1Cache()
@@ -51,26 +58,37 @@ class InMemoryL1CacheTest {
 
     companion object {
         @JvmStatic
-        fun cacheScenarios(): Stream<Arguments> = Stream.of(
-            Arguments.of("cache miss", false, false, null),   // no entry
-            Arguments.of("cache hit", true, false, "value"),  // valid entry
-            Arguments.of("cache expired", true, true, null)   // expired entry
+        fun scenarios(): Stream<TestScenario> = Stream.of(
+            TestScenario(
+                name = "cache miss",
+                present = false,
+                expired = false,
+                expected = { result -> assertThat(result).isNull() }
+            ),
+            TestScenario(
+                name = "cache hit",
+                present = true,
+                expired = false,
+                expected = { result -> assertThat(result).isNotNull }
+            ),
+            TestScenario(
+                name = "cache expired",
+                present = true,
+                expired = true,
+                expected = { result -> assertThat(result).isNull() }
+            )
         )
     }
 
     @ParameterizedTest(name = "{0}")
-    @MethodSource("cacheScenarios")
-    fun `test cache get scenarios`(
-        scenario: String,
-        present: Boolean,
-        expired: Boolean,
-        expectedResult: Any?
-    ) = runTest {
+    @MethodSource("scenarios")
+    fun `test cache get scenarios`(scenario: TestScenario) = runTest {
+
         // given
         every { mockKey.lookupKey() } returns "testKey"
 
-        if (present) {
-            val expiresAt = if (expired) Instant.now().minusSeconds(10) else Instant.now().plusSeconds(10)
+        if (scenario.present) {
+            val expiresAt = if (scenario.expired) Instant.now().minusSeconds(10) else Instant.now().plusSeconds(10)
             every { mockEntry.expiresAt } returns expiresAt
             every { mockEntry.cachedAt } returns Instant.now()
             every { mockEntry.withExpiresAt(any()) } returns mockEntry
@@ -81,11 +99,7 @@ class InMemoryL1CacheTest {
         val result = cache.get(mockKey)
 
         // then
-        if (expectedResult == null) {
-            assertThat(result).isNull()
-        } else {
-            assertThat(result).isNotNull
-        }
+        scenario.expected(result)
     }
 
 }
