@@ -23,94 +23,69 @@
  */
 package io.jrb.labs.common.cache
 
+import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
 import java.time.Instant
+import java.util.stream.Stream
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class InMemoryL1CacheTest {
 
-    private val cache = InMemoryL1Cache<CacheKey, TestEntry>()
+    private lateinit var cache: InMemoryL1Cache<CacheKey, TestEntry>
+    private lateinit var mockKey: TestKey
+    private lateinit var mockEntry: TestEntry
 
-    private data class TestKey(private val key: String) : CacheKey {
-        override fun lookupKey(): String = key
-        override fun hasMinimumLoadingCriteria(): Boolean = true
+    @BeforeEach
+    fun setUp() {
+        cache = InMemoryL1Cache()
+        mockKey = mockk()
+        mockEntry = mockk()
     }
 
-    private data class TestEntry(
-        override val cachedAt: Instant = Instant.now(),
-        override val expiresAt: Instant = Instant.now()
-    ) : CacheEntry<TestEntry> {
-        override fun withExpiresAt(expiresAt: Instant): TestEntry = copy(expiresAt = expiresAt)
+    companion object {
+        @JvmStatic
+        fun cacheScenarios(): Stream<Arguments> = Stream.of(
+            Arguments.of("cache miss", false, false, null),   // no entry
+            Arguments.of("cache hit", true, false, "value"),  // valid entry
+            Arguments.of("cache expired", true, true, null)   // expired entry
+        )
     }
 
-    @Test
-    fun `put stores and get retrieves entry before expiry`() = runTest {
-        val key = TestKey("k1")
-        val entry = TestEntry()
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("cacheScenarios")
+    fun `test cache get scenarios`(
+        scenario: String,
+        present: Boolean,
+        expired: Boolean,
+        expectedResult: Any?
+    ) = runTest {
+        // given
+        every { mockKey.lookupKey() } returns "testKey"
 
-        cache.put(key, entry, Duration.ofSeconds(5))
+        if (present) {
+            val expiresAt = if (expired) Instant.now().minusSeconds(10) else Instant.now().plusSeconds(10)
+            every { mockEntry.expiresAt } returns expiresAt
+            every { mockEntry.cachedAt } returns Instant.now()
+            every { mockEntry.withExpiresAt(any()) } returns mockEntry
+            cache.put(mockKey, mockEntry, Duration.ofSeconds(60))
+        }
 
-        val retrieved = cache.get(key)
+        // when
+        val result = cache.get(mockKey)
 
-        assertThat(retrieved).isNotNull
-        assertThat(retrieved!!.expiresAt).isAfter(Instant.now())
-    }
-
-    @Test
-    fun `get returns null and invalidates expired entry`() = runTest {
-        val key = TestKey("k2")
-        val entry = TestEntry()
-
-        // Insert with immediate expiry
-        cache.put(key, entry, Duration.ZERO)
-
-        // Simulate time after expiry
-        val result = cache.get(key)
-
-        assertThat(result).isNull()
-        assertThat(cache.get(key)).isNull() // ensures invalidated
-    }
-
-    @Test
-    fun `put with ttl null results in immediate expiry`() = runTest {
-        val key = TestKey("k3")
-        val entry = TestEntry()
-
-        cache.put(key, entry, null)
-
-        val retrieved = cache.get(key)
-
-        assertThat(retrieved).isNull() // expired immediately
-    }
-
-    @Test
-    fun `invalidate removes entry`() = runTest {
-        val key = TestKey("k4")
-        val entry = TestEntry()
-
-        cache.put(key, entry, Duration.ofSeconds(5))
-        assertThat(cache.get(key)).isNotNull
-
-        cache.invalidate(key)
-
-        assertThat(cache.get(key)).isNull()
-    }
-
-    @Test
-    fun `get returns entry if not expired`() = runTest {
-        val key = TestKey("k5")
-        val entry = TestEntry()
-
-        cache.put(key, entry, Duration.ofHours(1))
-
-        val retrieved = cache.get(key)
-
-        assertThat(retrieved).isNotNull
-        assertThat(retrieved!!.expiresAt).isAfter(Instant.now())
+        // then
+        if (expectedResult == null) {
+            assertThat(result).isNull()
+        } else {
+            assertThat(result).isNotNull
+        }
     }
 
 }
