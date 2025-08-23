@@ -30,6 +30,7 @@ import org.bson.codecs.pojo.annotations.BsonCreator
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.codecs.pojo.annotations.BsonProperty
 import org.bson.types.ObjectId
+import java.time.Duration
 import java.time.Instant
 
 data class RecommendationCacheEntry @BsonCreator constructor(
@@ -37,8 +38,8 @@ data class RecommendationCacheEntry @BsonCreator constructor(
     @BsonProperty("model") val model: String,
     @BsonProperty("id") val id: String,
     @BsonProperty("hitCount") val hitCount: Int,
-    @BsonProperty("cachedAt") override val cachedAt: Instant? = null,
-    @BsonProperty("expiresAt") override val expiresAt: Instant? = null
+    @BsonProperty("cachedAt") override val cachedAt: Instant = Instant.now(),
+    @BsonProperty("expiresAt") override val expiresAt: Instant = Instant.now().plus(Duration.ofMinutes(15))
 ) : CacheEntry<RecommendationCacheEntry>, PanacheMongoEntityBase() {
 
     fun toRecommendationResource(): RecommendationResource {
@@ -49,7 +50,7 @@ data class RecommendationCacheEntry @BsonCreator constructor(
         )
     }
 
-    override fun withExpiresAt(expiresAt: Instant?): RecommendationCacheEntry {
+    override fun withExpiresAt(expiresAt: Instant): RecommendationCacheEntry {
         return copy(cachedAt = Instant.now(), expiresAt = expiresAt)
     }
 
