@@ -28,8 +28,8 @@ import java.time.Instant
 data class TestEntry(
     val value: String,
     override val cachedAt: Instant = Instant.now(),
-    override val expiresAt: java.time.Instant = java.time.Instant.MAX
+    override val expiresAt: Instant = Instant.MAX
 ) : CacheEntry<TestEntry> {
-    override fun withExpiresAt(expiresAt: java.time.Instant): TestEntry =
+    override fun withExpiresAt(expiresAt: Instant): TestEntry =
         copy(expiresAt = expiresAt)
 }
