@@ -8,13 +8,16 @@ mp:
   messaging:
 
     # RabbitMQ
-    outgoing:
+    incoming:
       raw-message:
         connector: smallrye-rabbitmq
+        queue: recommendation-queue
         exchange: raw-message-exchange
         exchange-type: topic
-        routing-key: raw.data
+        routing-key: raw.#
+        auto-bind-exchange: true
+        declare: true
         host: ${RABBITMQ_HOST:localhost}
-        port: ${RABBITMQ_PORT:5672}
-        username: ${RABBITMQ_CLIENT_USERNAME}
-        password: ${RABBITMQ_CLIENT_PASSWORD}
+        port: ${RABBITMQ_PORT:5671}
+        username: ${RABBITMQ_CLIENT_USERNAME:admin}
+        password: ${RABBITMQ_CLIENT_PASSWORD:secret}
