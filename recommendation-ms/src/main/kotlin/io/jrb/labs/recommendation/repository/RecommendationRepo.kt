@@ -21,21 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.recommendation.cache
+package io.jrb.labs.recommendation.repository
 
-import io.jrb.labs.common.cache.CacheKey
+import io.jrb.labs.recommendation.model.RecommendationEntity
+import io.quarkus.mongodb.panache.kotlin.PanacheMongoRepository
+import jakarta.enterprise.context.ApplicationScoped
 
-data class RecommendationCacheKey(
-    val model: String,
-    val id: String
-) : CacheKey {
+@ApplicationScoped
+class RecommendationRepo : PanacheMongoRepository<RecommendationEntity> {
 
-    override fun lookupKey(): String {
-        return "${model}:${id}"
+    fun upsert(entity: RecommendationEntity) {
+        val existing = findByFingerprint(entity.model, entity.fingerprint)
+        if (existing == null) {
+            persist(entity)
+        } else {
+            update(existing.copy(
+                examples = entity.examples,
+                score = maxOf(existing.score, entity.score),
+                lastEmittedAt = entity.lastEmittedAt
+            ))
+        }
     }
 
-    override fun hasMinimumLoadingCriteria(): Boolean {
-        return true
-    }
+    fun findByFingerprint(model: String, fingerprint: String): RecommendationEntity? =
+        find("guid","$model#$fingerprint").firstResult()
+
+    fun top(limit: Int = 20): List<RecommendationEntity> =
+        findAll().stream().sorted { a, b -> b.score.compareTo(a.score) }.limit(limit.toLong()).toList()
 
 }

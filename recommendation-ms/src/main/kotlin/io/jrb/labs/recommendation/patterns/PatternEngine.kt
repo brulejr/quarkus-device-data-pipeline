@@ -21,16 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.recommendation.cache
+package io.jrb.labs.recommendation.patterns
 
-class RecommendationCacheLoader : suspend (RecommendationCacheKey) -> RecommendationCacheEntry? {
+import io.jrb.labs.messages.Rtl433Message
 
-    override suspend fun invoke(key: RecommendationCacheKey): RecommendationCacheEntry? {
-        return RecommendationCacheEntry(
-            model = key.model,
-            id = key.id,
-            hitCount = 0
-        )
-    }
-
+interface PatternEngine {
+    fun learn(msg: Rtl433Message)
 }

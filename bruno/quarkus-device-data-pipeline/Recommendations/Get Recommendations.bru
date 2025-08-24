@@ -1,0 +1,11 @@
+meta {
+  name: Get Recommendations
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{recommendation_ms_url}}/api/recommendations
+  body: none
+  auth: inherit
+}

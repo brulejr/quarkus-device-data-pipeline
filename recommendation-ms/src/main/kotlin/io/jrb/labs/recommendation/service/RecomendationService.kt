@@ -27,7 +27,6 @@ import io.jrb.labs.common.eventbus.SystemEventBus
 import io.jrb.labs.common.logging.LoggerDelegate
 import io.jrb.labs.common.service.ControllableService
 import io.jrb.labs.messages.Rtl433Message
-import io.jrb.labs.recommendation.cache.RecommendationLoadingCache
 import io.quarkus.runtime.Startup
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
@@ -36,8 +35,7 @@ import jakarta.enterprise.context.ApplicationScoped
 @Startup
 @ApplicationScoped
 class RecomendationService(
-    override var systemEventBus: SystemEventBus,
-    private val recommendationCache: RecommendationLoadingCache
+    override var systemEventBus: SystemEventBus
 ) : ControllableService() {
 
     override val serviceName = "RecommendationService"

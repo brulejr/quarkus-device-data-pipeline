@@ -21,12 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.recommendation.cache
+package io.jrb.labs.recommendation.patterns
 
-import io.quarkus.mongodb.panache.kotlin.PanacheMongoRepository
+import io.jrb.labs.datatypes.Rtl433Data
 
-class RecommendationCacheRepository : PanacheMongoRepository<RecommendationCacheEntry> {
-
-    fun findByModelAndId(model: String, id: String) = find("model = ?1 and id = ?2",model, id).firstResult()
-
+interface AnomalyDetector {
+    /** returns null if ok, or a score in [0,1+] where higher is more anomalous */
+    fun anomalyScore(data: Rtl433Data): Double?
 }

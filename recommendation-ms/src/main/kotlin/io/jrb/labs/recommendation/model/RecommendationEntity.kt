@@ -21,45 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.recommendation.cache
+package io.jrb.labs.recommendation.model
 
-import io.jrb.labs.common.cache.CacheEntry
-import io.jrb.labs.recommendation.resource.RecommendationResource
 import io.quarkus.mongodb.panache.kotlin.PanacheMongoEntityBase
 import org.bson.codecs.pojo.annotations.BsonCreator
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.codecs.pojo.annotations.BsonProperty
 import org.bson.types.ObjectId
-import java.time.Duration
 import java.time.Instant
 
-data class RecommendationCacheEntry @BsonCreator constructor(
-    @BsonId val objectId: ObjectId? = null,
+data class RecommendationEntity @BsonCreator constructor(
+    @BsonId val id: ObjectId? = null,
+    @BsonProperty("guid") val guid: String,
     @BsonProperty("model") val model: String,
-    @BsonProperty("id") val id: String,
-    @BsonProperty("hitCount") val hitCount: Int,
-    @BsonProperty("cachedAt") override val cachedAt: Instant = Instant.now(),
-    @BsonProperty("expiresAt") override val expiresAt: Instant = Instant.now().plus(Duration.ofMinutes(15))
-) : CacheEntry<RecommendationCacheEntry>, PanacheMongoEntityBase() {
-
-    fun toRecommendationResource(): RecommendationResource {
-        return RecommendationResource(
-            model = this.model,
-            id = this.id,
-            hitCount = this.hitCount
-        )
-    }
-
-    override fun withExpiresAt(expiresAt: Instant): RecommendationCacheEntry {
-        return copy(cachedAt = Instant.now(), expiresAt = expiresAt)
-    }
+    @BsonProperty("fingerprint") val fingerprint: String,
+    @BsonProperty("examples") val examples: Int,
+    @BsonProperty("score") val score: Double,
+    @BsonProperty("lastEmittedAt") val lastEmittedAt: Instant
+) : PanacheMongoEntityBase() {
 
     companion object {
-        fun fromRecommendationResource(recommendationResource: RecommendationResource) = RecommendationCacheEntry(
-            model = recommendationResource.model,
-            id = recommendationResource.id,
-            hitCount = recommendationResource.hitCount
-        )
+        fun from(model: String, fingerprint: String, examples: Int, score: Double, lastEmittedAt: Instant) =
+            RecommendationEntity(
+                guid = "$model#$fingerprint",
+                model = model,
+                fingerprint = fingerprint,
+                examples = examples,
+                score = score,
+                lastEmittedAt = lastEmittedAt
+            )
     }
 
 }

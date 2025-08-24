@@ -21,22 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.recommendation.cache
+package io.jrb.labs.recommendation.api
 
-import io.jrb.labs.common.cache.L1Cache
-import io.jrb.labs.common.cache.LoadingL1L2Cache
-import java.time.Duration
+import io.jrb.labs.recommendation.model.RecommendationEntity
+import io.jrb.labs.recommendation.repository.RecommendationRepo
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.core.MediaType
 
-class RecommendationLoadingCache(
-    l1Cache: L1Cache<RecommendationCacheKey, RecommendationCacheEntry>,
-    store: RecommendationCacheStore,
-    ttlL1Cache: Duration = Duration.ofMinutes(3),
-    ttlL2Cache: Duration = Duration.ofDays(1),
-    loadingFn: suspend (RecommendationCacheKey) -> RecommendationCacheEntry? = { null }
-) : LoadingL1L2Cache<RecommendationCacheKey, RecommendationCacheEntry>(
-    l1Cache = l1Cache,
-    store = store,
-    ttlL1Cache = ttlL1Cache,
-    ttlL2Cache = ttlL2Cache,
-    loadingFn = loadingFn
-)
+@Path("/api/recommendations")
+class RecommendationResource(
+    private val repo: RecommendationRepo
+) {
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    fun top(): List<RecommendationEntity> = repo.top(50)
+
+}

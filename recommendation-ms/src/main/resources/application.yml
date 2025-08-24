@@ -1,8 +1,17 @@
 quarkus:
+
   http:
     port: 3043
+
   log:
     level: INFO
+
+  jackson:
+    default-view-inclusion: false
+
+  mongodb:
+    connection-string: mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}?authSource=admin
+    database: quarkus-device-data-pipeline
 
 mp:
   messaging:

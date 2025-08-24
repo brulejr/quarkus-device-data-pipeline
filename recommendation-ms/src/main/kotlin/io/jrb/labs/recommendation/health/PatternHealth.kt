@@ -21,29 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.recommendation.cache
+package io.jrb.labs.recommendation.health
 
-import io.jrb.labs.common.cache.CacheStore
-import java.time.Duration
+import jakarta.enterprise.context.ApplicationScoped
+import org.eclipse.microprofile.health.HealthCheck
+import org.eclipse.microprofile.health.HealthCheckResponse
+import org.eclipse.microprofile.health.Liveness
 
-class RecommendationCacheStore(
-    private val repository: RecommendationCacheRepository
-) : CacheStore<RecommendationCacheKey, RecommendationCacheEntry> {
-
-    override suspend fun get(key: RecommendationCacheKey): RecommendationCacheEntry? {
-        return repository.findByModelAndId(key.model, key.id)
-    }
-
-    override suspend fun put(
-        key: RecommendationCacheKey,
-        value: RecommendationCacheEntry,
-        ttl: Duration?
-    ): RecommendationCacheEntry {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun invalidate(key: RecommendationCacheKey) {
-        TODO("Not yet implemented")
-    }
-
+@Liveness
+@ApplicationScoped
+class PatternHealth : HealthCheck {
+    override fun call(): HealthCheckResponse =
+        HealthCheckResponse.up("pattern-engine")
 }

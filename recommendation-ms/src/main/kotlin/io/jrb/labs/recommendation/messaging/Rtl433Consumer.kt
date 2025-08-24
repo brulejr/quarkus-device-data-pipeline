@@ -24,18 +24,20 @@
 package io.jrb.labs.recommendation.messaging
 
 import io.jrb.labs.messages.Rtl433Message
-import io.jrb.labs.recommendation.service.RecomendationService
+import io.jrb.labs.recommendation.patterns.PatternEngine
 import io.vertx.core.json.JsonObject
 import jakarta.enterprise.context.ApplicationScoped
 import org.eclipse.microprofile.reactive.messaging.Incoming
 
 @ApplicationScoped
-class Rtl433MessageSubscriber(private val recomendationService: RecomendationService) {
+class Rtl433Consumer(
+    private val patternEngine: PatternEngine
+) {
 
     @Incoming("raw-message")
-    fun process(message: JsonObject) {
+    fun onMessage(message: JsonObject) {
         val rtl433Message = message.mapTo(Rtl433Message::class.java)
-        recomendationService.processRtl433Message(rtl433Message)
+        patternEngine.learn(rtl433Message)
     }
 
 }
