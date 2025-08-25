@@ -29,9 +29,10 @@ import java.security.MessageDigest
 
 data class PayloadFingerprint(
     val model: String,
+    val id: String,
     val structureHash: String
 ) {
-    val key: String get() = "$model#$structureHash"
+    val key: String get() = "$model#$id#$structureHash"
 }
 
 object Fingerprints {
@@ -43,11 +44,11 @@ object Fingerprints {
      * Numbers become "N", strings "S", booleans "B", objects "O", arrays "A", null "Z".
      * Keys are sorted so ordering doesn’t change the hash.
      */
-    fun structureFingerprint(model: String, properties: Map<String, Any?>): PayloadFingerprint {
+    fun structureFingerprint(model: String, id: String, properties: Map<String, Any?>): PayloadFingerprint {
         val normalized = normalize(properties)
         val canonical = mapper.writeValueAsString(normalized) // compact, deterministic
         val sha = sha256(canonical)
-        return PayloadFingerprint(model, sha)
+        return PayloadFingerprint(model, id, sha)
     }
 
     private fun normalize(any: Any?): Any? = when (any) {

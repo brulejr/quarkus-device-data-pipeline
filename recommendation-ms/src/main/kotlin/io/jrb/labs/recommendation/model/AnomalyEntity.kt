@@ -30,35 +30,12 @@ import org.bson.codecs.pojo.annotations.BsonProperty
 import org.bson.types.ObjectId
 import java.time.Instant
 
-data class RecommendationEntity @BsonCreator constructor(
+data class AnomalyEntity @BsonCreator constructor(
     @BsonId val id: ObjectId? = null,
-    @BsonProperty("key") val key: String,
-    @BsonProperty("deviceModel") val deviceModel: String,
-    @BsonProperty("deviceId") val deviceId: String,
-    @BsonProperty("fingerprint") val fingerprint: String,
-    @BsonProperty("examples") val examples: Int,
+    @BsonProperty("guid") val guid: String,
+    @BsonProperty("model") val model: String,
     @BsonProperty("score") val score: Double,
-    @BsonProperty("lastEmittedAt") val lastEmittedAt: Instant
-) : PanacheMongoEntityBase() {
-
-    companion object {
-        fun from(
-            deviceModel: String,
-            deviceId: String,
-            fingerprint: String,
-            examples: Int,
-            score: Double,
-            lastEmittedAt: Instant
-        ) =
-            RecommendationEntity(
-                key = "$deviceModel#$deviceId#$fingerprint",
-                deviceModel = deviceModel,
-                deviceId = deviceId,
-                fingerprint = fingerprint,
-                examples = examples,
-                score = score,
-                lastEmittedAt = lastEmittedAt
-            )
-    }
-
-}
+    @BsonProperty("fingerprint") val fingerprint: String,
+    @BsonProperty("occurredAt") val occurredAt: Instant,
+    @BsonProperty("sample") val sample: Map<String, Any?>
+) : PanacheMongoEntityBase()

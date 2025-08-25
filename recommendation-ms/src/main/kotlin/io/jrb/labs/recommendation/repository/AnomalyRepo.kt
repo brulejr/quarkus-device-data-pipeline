@@ -23,33 +23,9 @@
  */
 package io.jrb.labs.recommendation.repository
 
-import io.jrb.labs.recommendation.model.RecommendationEntity
+import io.jrb.labs.recommendation.model.AnomalyEntity
 import io.quarkus.mongodb.panache.kotlin.PanacheMongoRepository
 import jakarta.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
-class RecommendationRepo : PanacheMongoRepository<RecommendationEntity> {
-
-    fun deleteByKey(model: String, id: String, fingerprint: String): Long =
-        delete("key","$model#$id#$fingerprint")
-
-    fun findByKey(model: String, id: String, fingerprint: String): RecommendationEntity? =
-        find("key","$model#$id#$fingerprint").firstResult()
-
-    fun top(limit: Int = 20): List<RecommendationEntity> =
-        findAll().stream().sorted { a, b -> b.score.compareTo(a.score) }.limit(limit.toLong()).toList()
-
-    fun upsert(entity: RecommendationEntity) {
-        val existing = findByKey(entity.deviceModel, entity.deviceId, entity.fingerprint)
-        if (existing == null) {
-            persist(entity)
-        } else {
-            update(existing.copy(
-                examples = entity.examples,
-                score = maxOf(existing.score, entity.score),
-                lastEmittedAt = entity.lastEmittedAt
-            ))
-        }
-    }
-
-}
+class AnomalyRepo : PanacheMongoRepository<AnomalyEntity>

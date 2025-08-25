@@ -26,38 +26,69 @@ package io.jrb.labs.recommendation.patterns
 import io.jrb.labs.common.logging.LoggerDelegate
 import io.jrb.labs.datatypes.Rtl433Data
 import io.jrb.labs.messages.Rtl433Message
+import io.jrb.labs.recommendation.model.AnomalyEntity
 import io.jrb.labs.recommendation.model.RecommendationEntity
+import io.jrb.labs.recommendation.repository.AnomalyRepo
+import io.jrb.labs.recommendation.repository.KnownPatternRepo
 import io.jrb.labs.recommendation.repository.RecommendationRepo
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.time.Duration
 import java.time.Instant
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
 @ApplicationScoped
 class FrequencyPatternEngine @Inject constructor(
-    private val recommendationRepo: RecommendationRepo
+    private val recommendationRepo: RecommendationRepo,
+    private val knownRepo: KnownPatternRepo,
+    private val anomalyRepo: AnomalyRepo,
+    private val anomalyDetector: AnomalyDetector // our AE
 ) : PatternEngine {
 
     private val log by LoggerDelegate()
 
-    // Sliding counters (in-memory). You can swap to Redis later.
     private val counts = ConcurrentHashMap<String, AtomicLong>()
     private val firstSeen = ConcurrentHashMap<String, Instant>()
     private val lastSeen = ConcurrentHashMap<String, Instant>()
 
-    // Tunables
-    private val minObservations = 3L           // require at least N hits
-    private val minLifespan = Duration.ofMinutes(3) // seen over at least this timespan
-    private val cooldown = Duration.ofMinutes(30)    // avoid re-emitting too often
+    private val minObservations = 3L
+    private val minLifespan = Duration.ofMinutes(3)
+    private val cooldown = Duration.ofMinutes(30)
 
     override fun learn(msg: Rtl433Message) {
         val data: Rtl433Data = msg.payload
-        val fp = Fingerprints.structureFingerprint(data.model, data.getProperties())
+        val fp = Fingerprints.structureFingerprint(data.model, data.id, data.getProperties())
         val key = fp.key
-
         val now = Instant.now()
+
+        // If already promoted, skip
+        if (knownRepo.findByKey(fp.model, fp.id, fp.structureHash) != null) {
+            return
+        }
+
+        // Anomaly scoring (non-blocking compute)
+        try {
+            val a = anomalyDetector.anomalyScore(data)
+            if (a != null && (anomalyDetector as? AutoencoderAnomalyDetector)?.isAnomalous(a) == true) {
+                anomalyRepo.persist(
+                    AnomalyEntity(
+                        guid = "${data.model}#${now.toEpochMilli()}#${UUID.randomUUID()}",
+                        model = data.model,
+                        score = a,
+                        fingerprint = fp.structureHash,
+                        occurredAt = now,
+                        sample = data.getProperties()
+                    )
+                )
+                // Optionally: drop or down-weight anomalous events; here we just drop increment
+                return
+            }
+        } catch (t: Throwable) {
+            log.debug("Anomaly scoring failed; proceeding without", t)
+        }
+
         counts.computeIfAbsent(key) { AtomicLong(0) }.incrementAndGet()
         firstSeen.putIfAbsent(key, now)
         lastSeen[key] = now
@@ -66,18 +97,20 @@ class FrequencyPatternEngine @Inject constructor(
     }
 
     private fun maybeRecommend(key: String, data: Rtl433Data, fp: PayloadFingerprint, now: Instant) {
+        // Skip if known
+        if (knownRepo.findByKey(fp.model, fp.id, fp.structureHash) != null) return
+
         val c = counts[key]?.get() ?: return
         val age = Duration.between(firstSeen[key] ?: now, now)
-        val last = lastSeen[key] ?: now
-        log.info("learning - key = $key, fp = $fp, c = $c, age = $age, data = $data")
+        log.info("learning - key = $key, c = $c, age = $age, fp = $fp, data = $data")
 
-        // Already recommended recently?
-        val existing = recommendationRepo.findByFingerprint(fp.model, fp.structureHash)
+        val existing = recommendationRepo.findByKey(fp.model, fp.id, fp.structureHash)
         if (existing != null && Duration.between(existing.lastEmittedAt, now) < cooldown) return
 
         if (c >= minObservations && age >= minLifespan) {
             val rec = RecommendationEntity.from(
-                model = data.model,
+                deviceModel = data.model,
+                deviceId = data.id,
                 fingerprint = fp.structureHash,
                 examples = 1,
                 score = score(c, age),
@@ -89,8 +122,8 @@ class FrequencyPatternEngine @Inject constructor(
     }
 
     private fun score(count: Long, age: Duration): Double {
-        // Simple heuristic: favor frequent and persistent
         val ageMin = age.toMinutes().coerceAtLeast(1)
         return count.toDouble() * Math.log10(1.0 + ageMin)
     }
+
 }
