@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class ControllableService {
 
-    abstract val serviceName: String
+    open val serviceName: String = javaClass.simpleName
     abstract var systemEventBus: SystemEventBus
 
     private val _running = AtomicBoolean(false)

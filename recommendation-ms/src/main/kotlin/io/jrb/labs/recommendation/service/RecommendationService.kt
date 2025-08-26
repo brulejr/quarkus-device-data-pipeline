@@ -42,8 +42,6 @@ class RecommendationService(
     private val datafill: RecommendationDatafill
 ) : ControllableService() {
 
-    override val serviceName = "RecommendationService"
-
     private val log by LoggerDelegate()
 
     fun topRecommendations(): List<RecommendationResource> {

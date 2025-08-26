@@ -48,8 +48,6 @@ class ModelService(
     private val objectMapper: ObjectMapper
 ) : ControllableService() {
 
-    override val serviceName = "ModelService"
-
     private val crudService = CrudService(
         "model",
         repository = modelRepository,
