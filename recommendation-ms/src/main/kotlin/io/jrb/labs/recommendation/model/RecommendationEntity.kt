@@ -42,7 +42,7 @@ data class RecommendationEntity @BsonCreator constructor(
     @BsonProperty("lastEmittedAt") val lastEmittedAt: Instant
 ) : PanacheMongoEntityBase() {
 
-    fun toRecommendationResource(): RecommendationResource {
+    fun toResource(): RecommendationResource {
         return RecommendationResource(
             model = deviceModel,
             id = deviceId,

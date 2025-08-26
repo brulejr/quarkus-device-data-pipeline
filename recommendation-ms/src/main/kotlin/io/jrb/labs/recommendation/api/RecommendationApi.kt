@@ -25,7 +25,7 @@ package io.jrb.labs.recommendation.api
 
 import com.fasterxml.jackson.annotation.JsonView
 import io.jrb.labs.recommendation.resource.RecommendationResource
-import io.jrb.labs.recommendation.resource.RecommendationViews
+import io.jrb.labs.recommendation.resource.ResourceViews
 import io.jrb.labs.recommendation.service.RecommendationService
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
@@ -39,7 +39,7 @@ class RecommendationApi(
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @JsonView(RecommendationViews.List::class)
+    @JsonView(ResourceViews.List::class)
     fun topRecommendations(): List<RecommendationResource> = resourceService.topRecommendations()
 
 }

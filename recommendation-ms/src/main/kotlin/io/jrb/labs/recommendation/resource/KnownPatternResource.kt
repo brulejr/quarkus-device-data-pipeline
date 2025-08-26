@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonView
 import java.time.Instant
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class RecommendationResource(
+data class KnownPatternResource(
 
     @field:JsonView(ResourceViews.List::class)
     val model: String,
@@ -40,12 +40,18 @@ data class RecommendationResource(
     val fingerprint: String,
 
     @field:JsonView(ResourceViews.List::class)
-    val examples: Int,
+    val name: String,
 
     @field:JsonView(ResourceViews.List::class)
-    val score: Double,
+    val type: String,
 
     @field:JsonView(ResourceViews.List::class)
-    val lastEmittedAt: Instant
+    val area: String,
+
+    @field:JsonView(ResourceViews.Details::class)
+    val createdAt: Instant = Instant.now(),
+
+    @field:JsonView(ResourceViews.Details::class)
+    val updatedAt: Instant = Instant.now()
 
 )

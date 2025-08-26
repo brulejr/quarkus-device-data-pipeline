@@ -23,6 +23,8 @@
  */
 package io.jrb.labs.recommendation.model
 
+import io.jrb.labs.recommendation.resource.KnownPatternResource
+import io.jrb.labs.recommendation.resource.PromoteRequest
 import io.quarkus.mongodb.panache.kotlin.PanacheMongoEntityBase
 import org.bson.codecs.pojo.annotations.BsonCreator
 import org.bson.codecs.pojo.annotations.BsonId
@@ -41,4 +43,33 @@ data class KnownPatternEntity @BsonCreator constructor(
     @BsonProperty("area") val area: String,
     @BsonProperty("createdAt") val createdAt: Instant = Instant.now(),
     @BsonProperty("updatedAt") val updatedAt: Instant = Instant.now()
-) : PanacheMongoEntityBase()
+) : PanacheMongoEntityBase() {
+
+    fun toResource() : KnownPatternResource {
+        return KnownPatternResource(
+            model = deviceModel,
+            id = deviceId,
+            fingerprint = fingerprint,
+            name = name,
+            type = type,
+            area = area,
+            createdAt = createdAt,
+            updatedAt = updatedAt
+        )
+    }
+
+    companion object {
+
+        fun fromPromoteRequest(promoteRequest: PromoteRequest) = KnownPatternEntity(
+            key = "${promoteRequest.model}#${promoteRequest.id}",
+            deviceModel = promoteRequest.model,
+            deviceId = promoteRequest.id,
+            fingerprint = promoteRequest.fingerprint,
+            name = promoteRequest.name,
+            type = promoteRequest.type,
+            area = promoteRequest.area
+        )
+
+    }
+
+}

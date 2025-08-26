@@ -23,7 +23,7 @@
  */
 package io.jrb.labs.recommendation.resource
 
-class RecommendationViews {
+class ResourceViews {
 
     interface List
     interface Details : List

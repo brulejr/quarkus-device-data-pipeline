@@ -23,11 +23,9 @@
  */
 package io.jrb.labs.recommendation.api
 
-import io.jrb.labs.recommendation.model.KnownPatternEntity
-import io.jrb.labs.recommendation.repository.KnownPatternRepository
-import io.jrb.labs.recommendation.repository.RecommendationRepository
+import io.jrb.labs.recommendation.resource.KnownPatternResource
 import io.jrb.labs.recommendation.resource.PromoteRequest
-import jakarta.transaction.Transactional
+import io.jrb.labs.recommendation.service.RecommendationService
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
@@ -39,33 +37,19 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 
 @Path("/api/promotions")
-class PromoteResource(
-    private val knownRepo: KnownPatternRepository,
-    private val recRepo: RecommendationRepository
+class PromoteApi(
+    private val resourceService: RecommendationService
 ) {
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    fun list(): List<KnownPatternEntity> =
-        knownRepo.findAll().list()
+    fun list(): List<KnownPatternResource> = resourceService.knownPatterns()
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Transactional
     fun promote(req: PromoteRequest): Response {
-        val entity = KnownPatternEntity(
-            key = "${req.model}#${req.id}#${req.fingerprint}",
-            deviceModel = req.model,
-            deviceId = req.id,
-            fingerprint = req.fingerprint,
-            name = req.name,
-            type = req.type,
-            area = req.area
-        )
-        knownRepo.upsert(entity)
-        // Remove/suppress any outstanding recommendations for this pattern
-        recRepo.deleteByKey(req.model, req.id, req.fingerprint)
-        return Response.ok(entity).build()
+        resourceService.promoteRecommendation(req)
+        return Response.noContent().build()
     }
 
     @DELETE
@@ -75,7 +59,7 @@ class PromoteResource(
         @PathParam("id") id: String,
         @PathParam("fingerprint") fingerprint: String
     ): Response {
-        knownRepo.deleteByKey(model, id, fingerprint)
+        resourceService.deletePromotion(model, id, fingerprint)
         return Response.noContent().build()
     }
 

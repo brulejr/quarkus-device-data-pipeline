@@ -23,11 +23,36 @@
  */
 package io.jrb.labs.recommendation.resource
 
-data class PromoteRequest(
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.validation.constraints.NotBlank
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class PromoteRequest @JsonCreator constructor(
+
+    @field:NotBlank(message="Model may not be blank")
+    @field:JsonProperty("model")
     val model: String,
+
+    @field:NotBlank(message="ID may not be blank")
+    @field:JsonProperty("id")
     val id: String,
+
+    @field:NotBlank(message="Fingerprint may not be blank")
+    @field:JsonProperty("fingerprint")
     val fingerprint: String,
+
+    @field:NotBlank(message="Name may not be blank")
+    @field:JsonProperty("name")
     val name: String,
+
+    @field:NotBlank(message="Type may not be blank")
+    @field:JsonProperty("type")
     val type: String,
+
+    @field:NotBlank(message="Area may not be blank")
+    @field:JsonProperty("area")
     val area: String
+
 )
