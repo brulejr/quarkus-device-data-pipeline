@@ -28,9 +28,9 @@ import io.jrb.labs.datatypes.Rtl433Data
 import io.jrb.labs.messages.Rtl433Message
 import io.jrb.labs.recommendation.model.AnomalyEntity
 import io.jrb.labs.recommendation.model.RecommendationEntity
-import io.jrb.labs.recommendation.repository.AnomalyRepo
-import io.jrb.labs.recommendation.repository.KnownPatternRepo
-import io.jrb.labs.recommendation.repository.RecommendationRepo
+import io.jrb.labs.recommendation.repository.AnomalyRepository
+import io.jrb.labs.recommendation.repository.KnownPatternRepository
+import io.jrb.labs.recommendation.repository.RecommendationRepository
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.time.Duration
@@ -41,9 +41,9 @@ import java.util.concurrent.atomic.AtomicLong
 
 @ApplicationScoped
 class FrequencyPatternEngine @Inject constructor(
-    private val recommendationRepo: RecommendationRepo,
-    private val knownRepo: KnownPatternRepo,
-    private val anomalyRepo: AnomalyRepo,
+    private val recommendationRepository: RecommendationRepository,
+    private val knownRepo: KnownPatternRepository,
+    private val anomalyRepo: AnomalyRepository,
     private val anomalyDetector: AnomalyDetector // our AE
 ) : PatternEngine {
 
@@ -104,7 +104,7 @@ class FrequencyPatternEngine @Inject constructor(
         val age = Duration.between(firstSeen[key] ?: now, now)
         log.info("learning - key = $key, c = $c, age = $age, fp = $fp, data = $data")
 
-        val existing = recommendationRepo.findByKey(fp.model, fp.id, fp.structureHash)
+        val existing = recommendationRepository.findByKey(fp.model, fp.id, fp.structureHash)
         if (existing != null && Duration.between(existing.lastEmittedAt, now) < cooldown) return
 
         if (c >= minObservations && age >= minLifespan) {
@@ -116,7 +116,7 @@ class FrequencyPatternEngine @Inject constructor(
                 score = score(c, age),
                 lastEmittedAt = now
             )
-            recommendationRepo.upsert(rec)
+            recommendationRepository.upsert(rec)
             log.info("Recommended pattern model=${data.model} fp=${fp.structureHash} count=$c age=${age.seconds}s score=${rec.score}")
         }
     }

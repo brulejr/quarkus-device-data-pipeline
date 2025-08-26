@@ -21,35 +21,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.recommendation.repository
+package io.jrb.labs.recommendation.service
 
+import io.jrb.labs.common.eventbus.SystemEventBus
+import io.jrb.labs.common.logging.LoggerDelegate
+import io.jrb.labs.common.service.ControllableService
+import io.jrb.labs.recommendation.datafill.RecommendationDatafill
 import io.jrb.labs.recommendation.model.RecommendationEntity
-import io.quarkus.mongodb.panache.kotlin.PanacheMongoRepository
+import io.jrb.labs.recommendation.repository.RecommendationRepository
+import io.quarkus.runtime.Startup
+import jakarta.annotation.PostConstruct
+import jakarta.annotation.PreDestroy
 import jakarta.enterprise.context.ApplicationScoped
 
+@Startup
 @ApplicationScoped
-class RecommendationRepo : PanacheMongoRepository<RecommendationEntity> {
+class RecommendationService(
+    override var systemEventBus: SystemEventBus,
+    private val repository: RecommendationRepository,
+    private val datafill: RecommendationDatafill
+) : ControllableService() {
 
-    fun deleteByKey(model: String, id: String, fingerprint: String): Long =
-        delete("key","$model#$id#$fingerprint")
+    override val serviceName = "RecommendationService"
 
-    fun findByKey(model: String, id: String, fingerprint: String): RecommendationEntity? =
-        find("key","$model#$id#$fingerprint").firstResult()
+    private val log by LoggerDelegate()
 
-    fun top(limit: Int = 20): List<RecommendationEntity> =
-        findAll().stream().sorted { a, b -> b.score.compareTo(a.score) }.limit(limit.toLong()).toList()
+    fun topRecommendations(): List<RecommendationEntity> {
+        log.info("topRecommendations = ${datafill.maxRecommendations()}")
+        return repository.top(datafill.maxRecommendations())
+    }
 
-    fun upsert(entity: RecommendationEntity) {
-        val existing = findByKey(entity.deviceModel, entity.deviceId, entity.fingerprint)
-        if (existing == null) {
-            persist(entity)
-        } else {
-            update(existing.copy(
-                examples = entity.examples,
-                score = maxOf(existing.score, entity.score),
-                lastEmittedAt = entity.lastEmittedAt
-            ))
-        }
+    @PostConstruct
+    override fun startup() {
+        super.startup()
+    }
+
+    @PreDestroy
+    override fun shutdown() {
+        super.startup()
     }
 
 }

@@ -21,39 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.recommendation.service
+package io.jrb.labs.recommendation.repository
 
-import io.jrb.labs.common.eventbus.SystemEventBus
-import io.jrb.labs.common.logging.LoggerDelegate
-import io.jrb.labs.common.service.ControllableService
-import io.jrb.labs.messages.Rtl433Message
-import io.quarkus.runtime.Startup
-import jakarta.annotation.PostConstruct
-import jakarta.annotation.PreDestroy
+import io.jrb.labs.recommendation.model.AnomalyEntity
+import io.quarkus.mongodb.panache.kotlin.PanacheMongoRepository
 import jakarta.enterprise.context.ApplicationScoped
 
-@Startup
 @ApplicationScoped
-class RecomendationService(
-    override var systemEventBus: SystemEventBus
-) : ControllableService() {
-
-    override val serviceName = "RecommendationService"
-
-    private val log by LoggerDelegate()
-
-    fun processRtl433Message(rtl433Message: Rtl433Message) {
-        log.info("rtl433Message: {}", rtl433Message)
-    }
-
-    @PostConstruct
-    override fun startup() {
-        super.startup()
-    }
-
-    @PreDestroy
-    override fun shutdown() {
-        super.startup()
-    }
-
-}
+class AnomalyRepository : PanacheMongoRepository<AnomalyEntity>

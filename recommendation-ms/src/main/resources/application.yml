@@ -30,3 +30,6 @@ mp:
         port: ${RABBITMQ_PORT:5671}
         username: ${RABBITMQ_CLIENT_USERNAME:admin}
         password: ${RABBITMQ_CLIENT_PASSWORD:secret}
+
+recommendations:
+  max-recommendations: 10

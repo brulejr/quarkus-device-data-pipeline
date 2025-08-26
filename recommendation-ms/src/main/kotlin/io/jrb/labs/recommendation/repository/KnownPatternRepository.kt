@@ -23,9 +23,32 @@
  */
 package io.jrb.labs.recommendation.repository
 
-import io.jrb.labs.recommendation.model.AnomalyEntity
+import io.jrb.labs.recommendation.model.KnownPatternEntity
 import io.quarkus.mongodb.panache.kotlin.PanacheMongoRepository
 import jakarta.enterprise.context.ApplicationScoped
+import java.time.Instant
 
 @ApplicationScoped
-class AnomalyRepo : PanacheMongoRepository<AnomalyEntity>
+class KnownPatternRepository : PanacheMongoRepository<KnownPatternEntity> {
+
+    fun deleteByKey(model: String, id: String, fingerprint: String): Long =
+        delete("key","$model#$id#$fingerprint")
+
+    fun findByKey(model: String, id: String, fingerprint: String): KnownPatternEntity? =
+        find("key","$model#$id#$fingerprint").firstResult()
+
+    fun upsert(entity: KnownPatternEntity) {
+        val existing: KnownPatternEntity? = findByKey(entity.deviceId, entity.deviceId, entity.fingerprint)
+        if (existing == null) {
+            persist(entity)
+        } else {
+            update(existing.copy(
+                name = entity.name,
+                type = entity.type,
+                area = entity.area,
+                updatedAt = Instant.now()
+            ))
+        }
+    }
+
+}

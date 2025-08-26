@@ -24,8 +24,8 @@
 package io.jrb.labs.recommendation.api
 
 import io.jrb.labs.recommendation.model.KnownPatternEntity
-import io.jrb.labs.recommendation.repository.KnownPatternRepo
-import io.jrb.labs.recommendation.repository.RecommendationRepo
+import io.jrb.labs.recommendation.repository.KnownPatternRepository
+import io.jrb.labs.recommendation.repository.RecommendationRepository
 import io.jrb.labs.recommendation.resource.PromoteRequest
 import jakarta.transaction.Transactional
 import jakarta.ws.rs.Consumes
@@ -38,11 +38,10 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 
-@Path("/api" +
-        "/promotions")
+@Path("/api/promotions")
 class PromoteResource(
-    private val knownRepo: KnownPatternRepo,
-    private val recRepo: RecommendationRepo
+    private val knownRepo: KnownPatternRepository,
+    private val recRepo: RecommendationRepository
 ) {
     @GET
     @Produces(MediaType.APPLICATION_JSON)

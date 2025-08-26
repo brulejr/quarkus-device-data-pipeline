@@ -23,30 +23,31 @@
  */
 package io.jrb.labs.recommendation.repository
 
-import io.jrb.labs.recommendation.model.KnownPatternEntity
+import io.jrb.labs.recommendation.model.RecommendationEntity
 import io.quarkus.mongodb.panache.kotlin.PanacheMongoRepository
 import jakarta.enterprise.context.ApplicationScoped
-import java.time.Instant
 
 @ApplicationScoped
-class KnownPatternRepo : PanacheMongoRepository<KnownPatternEntity> {
+class RecommendationRepository : PanacheMongoRepository<RecommendationEntity> {
 
     fun deleteByKey(model: String, id: String, fingerprint: String): Long =
         delete("key","$model#$id#$fingerprint")
 
-    fun findByKey(model: String, id: String, fingerprint: String): KnownPatternEntity? =
+    fun findByKey(model: String, id: String, fingerprint: String): RecommendationEntity? =
         find("key","$model#$id#$fingerprint").firstResult()
 
-    fun upsert(entity: KnownPatternEntity) {
-        val existing: KnownPatternEntity? = findByKey(entity.deviceId, entity.deviceId, entity.fingerprint)
+    fun top(limit: Int = 20): List<RecommendationEntity> =
+        findAll().stream().sorted { a, b -> b.score.compareTo(a.score) }.limit(limit.toLong()).toList()
+
+    fun upsert(entity: RecommendationEntity) {
+        val existing = findByKey(entity.deviceModel, entity.deviceId, entity.fingerprint)
         if (existing == null) {
             persist(entity)
         } else {
             update(existing.copy(
-                name = entity.name,
-                type = entity.type,
-                area = entity.area,
-                updatedAt = Instant.now()
+                examples = entity.examples,
+                score = maxOf(existing.score, entity.score),
+                lastEmittedAt = entity.lastEmittedAt
             ))
         }
     }

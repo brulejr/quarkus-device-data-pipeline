@@ -21,22 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.recommendation.api
+package io.jrb.labs.recommendation.datafill
 
-import io.jrb.labs.recommendation.model.RecommendationEntity
-import io.jrb.labs.recommendation.repository.RecommendationRepo
-import jakarta.ws.rs.GET
-import jakarta.ws.rs.Path
-import jakarta.ws.rs.Produces
-import jakarta.ws.rs.core.MediaType
+import io.quarkus.runtime.annotations.StaticInitSafe
+import io.smallrye.config.ConfigMapping
+import io.smallrye.config.WithDefault
 
-@Path("/api/recommendations")
-class RecommendationResource(
-    private val repo: RecommendationRepo
-) {
+@StaticInitSafe
+@ConfigMapping(prefix = "recommendations")
+interface RecommendationDatafill {
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    fun top(): List<RecommendationEntity> = repo.top(50)
+    @WithDefault("25")
+    fun maxRecommendations(): Int
 
 }
+
