@@ -26,7 +26,7 @@ dependencies {
 
 jib {
     from {
-        image = "eclipse-temurin:21-jdk-alpine"
+        image = "eclipse-temurin:21-jdk"
     }
     to {
         image = "brulejr/recommendation-ms"
