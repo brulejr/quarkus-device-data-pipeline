@@ -25,6 +25,7 @@ package io.jrb.labs.recommendation.resource
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonView
+import java.time.Instant
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class RecommendationResource(
@@ -36,6 +37,15 @@ data class RecommendationResource(
     val id: String,
 
     @field:JsonView(RecommendationViews.List::class)
-    val hitCount: Int,
+    val fingerprint: String,
+
+    @field:JsonView(RecommendationViews.List::class)
+    val examples: Int,
+
+    @field:JsonView(RecommendationViews.List::class)
+    val score: Double,
+
+    @field:JsonView(RecommendationViews.List::class)
+    val lastEmittedAt: Instant
 
 )

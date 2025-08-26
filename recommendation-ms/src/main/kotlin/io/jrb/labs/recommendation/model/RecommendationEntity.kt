@@ -23,6 +23,7 @@
  */
 package io.jrb.labs.recommendation.model
 
+import io.jrb.labs.recommendation.resource.RecommendationResource
 import io.quarkus.mongodb.panache.kotlin.PanacheMongoEntityBase
 import org.bson.codecs.pojo.annotations.BsonCreator
 import org.bson.codecs.pojo.annotations.BsonId
@@ -40,6 +41,17 @@ data class RecommendationEntity @BsonCreator constructor(
     @BsonProperty("score") val score: Double,
     @BsonProperty("lastEmittedAt") val lastEmittedAt: Instant
 ) : PanacheMongoEntityBase() {
+
+    fun toRecommendationResource(): RecommendationResource {
+        return RecommendationResource(
+            model = deviceModel,
+            id = deviceId,
+            fingerprint = fingerprint,
+            examples = examples,
+            score = score,
+            lastEmittedAt = lastEmittedAt
+        )
+    }
 
     companion object {
         fun from(

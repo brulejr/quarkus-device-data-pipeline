@@ -27,8 +27,8 @@ import io.jrb.labs.common.eventbus.SystemEventBus
 import io.jrb.labs.common.logging.LoggerDelegate
 import io.jrb.labs.common.service.ControllableService
 import io.jrb.labs.recommendation.datafill.RecommendationDatafill
-import io.jrb.labs.recommendation.model.RecommendationEntity
 import io.jrb.labs.recommendation.repository.RecommendationRepository
+import io.jrb.labs.recommendation.resource.RecommendationResource
 import io.quarkus.runtime.Startup
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
@@ -46,9 +46,11 @@ class RecommendationService(
 
     private val log by LoggerDelegate()
 
-    fun topRecommendations(): List<RecommendationEntity> {
-        log.info("topRecommendations = ${datafill.maxRecommendations()}")
-        return repository.top(datafill.maxRecommendations())
+    fun topRecommendations(): List<RecommendationResource> {
+        return repository
+            .top(datafill.maxRecommendations())
+            .sortedByDescending { it.score }
+            .map { it.toRecommendationResource() }
     }
 
     @PostConstruct
