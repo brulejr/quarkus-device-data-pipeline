@@ -14,10 +14,7 @@ dependencies {
     implementation("io.quarkus:quarkus-messaging-mqtt")
     implementation("io.quarkus:quarkus-messaging-rabbitmq")
 
-    testImplementation("io.quarkus:quarkus-junit5")
-    testImplementation("io.rest-assured:rest-assured")
-    testImplementation("io.mockk:mockk:1.13.12")
-    testImplementation("org.assertj:assertj-core:3.26.0")
+    testImplementation(project(":common-test"))
 }
 
 jib {
