@@ -25,7 +25,7 @@ package io.jrb.labs.model.model
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.common.model.Entity
-import io.jrb.labs.model.resource.ModelResource
+import io.jrb.labs.resources.model.ModelResource
 import io.quarkus.mongodb.panache.kotlin.PanacheMongoEntityBase
 import org.bson.codecs.pojo.annotations.BsonCreator
 import org.bson.codecs.pojo.annotations.BsonId

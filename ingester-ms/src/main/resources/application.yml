@@ -16,7 +16,7 @@ mp:
         connector: smallrye-mqtt
         host: ${INCOMING_MQTT_HOST}
         port: ${INCOMING_MQTT_PORT:1883}
-        topic: rtl_433/c1f2d7d5512c/events
+        topic: rtl_433/c568f8b433e2/events
         qos: 1
         client-id: rtl433-client-${random.uuid}
         auto-acknowledge: true

@@ -21,41 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.model.resource
+package io.jrb.labd.model.client
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonView
-import com.fasterxml.jackson.databind.JsonNode
-import java.time.Instant
+import io.jrb.labs.resources.model.ModelResource
+import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.core.MediaType
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
+import org.jboss.resteasy.reactive.RestPath
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-data class ModelResource(
+@Path("/api/models")
+@RegisterRestClient(configKey = "user-api")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+interface ModelClient {
 
-    @field:JsonView(ModelViews.List::class)
-    val source: String,
+    @Path("/{id}")
+    fun getModel(@RestPath modelName: String): ModelResource
 
-    @field:JsonView(ModelViews.List::class)
-    val model: String,
-
-    @field:JsonView(ModelViews.List::class)
-    val category: String?,
-
-    @field:JsonView(ModelViews.Details::class)
-    val jsonStructure: JsonNode,
-
-    @field:JsonView(ModelViews.Details::class)
-    val fingerprint: String,
-
-    @field:JsonView(ModelViews.Details::class)
-    val sensors: List<SensorMappingResource>? = null,
-
-    @field:JsonView(ModelViews.Details::class)
-    val createdOn: Instant? = null,
-
-    @field:JsonView(ModelViews.Details::class)
-    val modifiedOn: Instant? = null,
-
-    @field:JsonView(ModelViews.Details::class)
-    val version: Long? = null
-
-)
+}

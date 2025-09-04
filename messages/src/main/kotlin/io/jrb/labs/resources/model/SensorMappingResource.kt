@@ -21,9 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.model.model
+package io.jrb.labs.resources.model
 
-enum class SensorType {
-    ANALOG,
-    BINARY
-}
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonView
+import io.jrb.labs.datatypes.SensorType
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class SensorMappingResource(
+
+    @field:JsonView(ModelViews.Details::class)
+    val name: String,
+
+    @field:JsonView(ModelViews.Details::class)
+    val type: SensorType,
+
+    @field:JsonView(ModelViews.Details::class)
+    val classname: String,
+
+    @field:JsonView(ModelViews.Details::class)
+    val friendlyName: String? = null
+
+)

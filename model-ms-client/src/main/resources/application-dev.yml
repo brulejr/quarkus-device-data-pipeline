@@ -1,0 +1,4 @@
+quarkus:
+  rest-client:
+    user-api:
+      url: https://api.example.com

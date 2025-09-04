@@ -26,8 +26,8 @@ package io.jrb.labs.model.resource
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import io.jrb.labs.datatypes.SensorType
 import io.jrb.labs.model.model.SensorMapping
-import io.jrb.labs.model.model.SensorType
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 

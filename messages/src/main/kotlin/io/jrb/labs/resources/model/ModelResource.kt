@@ -21,25 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.model.resource
+package io.jrb.labs.resources.model
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonView
-import io.jrb.labs.model.model.SensorType
+import com.fasterxml.jackson.databind.JsonNode
+import java.time.Instant
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class SensorMappingResource(
+data class ModelResource(
+
+    @field:JsonView(ModelViews.List::class)
+    val source: String,
+
+    @field:JsonView(ModelViews.List::class)
+    val model: String,
+
+    @field:JsonView(ModelViews.List::class)
+    val category: String?,
 
     @field:JsonView(ModelViews.Details::class)
-    val name: String,
+    val jsonStructure: JsonNode,
 
     @field:JsonView(ModelViews.Details::class)
-    val type: SensorType,
+    val fingerprint: String,
 
     @field:JsonView(ModelViews.Details::class)
-    val classname: String,
+    val sensors: List<SensorMappingResource>? = null,
 
     @field:JsonView(ModelViews.Details::class)
-    val friendlyName: String? = null
+    val createdOn: Instant? = null,
+
+    @field:JsonView(ModelViews.Details::class)
+    val modifiedOn: Instant? = null,
+
+    @field:JsonView(ModelViews.Details::class)
+    val version: Long? = null
 
 )

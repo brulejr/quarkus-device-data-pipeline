@@ -23,7 +23,8 @@
  */
 package io.jrb.labs.model.model
 
-import io.jrb.labs.model.resource.SensorMappingResource
+import io.jrb.labs.datatypes.SensorType
+import io.jrb.labs.resources.model.SensorMappingResource
 import org.bson.codecs.pojo.annotations.BsonCreator
 import org.bson.codecs.pojo.annotations.BsonProperty
 

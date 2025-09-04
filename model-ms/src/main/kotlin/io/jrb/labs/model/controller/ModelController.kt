@@ -25,9 +25,9 @@ package io.jrb.labs.model.controller
 
 import com.fasterxml.jackson.annotation.JsonView
 import io.jrb.labs.common.service.crud.CrudResponse.Companion.crudResponse
-import io.jrb.labs.model.resource.ModelViews
 import io.jrb.labs.model.resource.SensorsUpdateRequest
 import io.jrb.labs.model.service.ModelService
+import io.jrb.labs.resources.model.ModelViews
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes

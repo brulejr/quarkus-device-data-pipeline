@@ -1,0 +1,4 @@
+quarkus:
+  rest-client:
+    user-api:
+      scope: javax.inject.Singleton

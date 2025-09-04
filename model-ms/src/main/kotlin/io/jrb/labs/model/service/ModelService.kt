@@ -31,8 +31,8 @@ import io.jrb.labs.common.service.crud.CrudService
 import io.jrb.labs.messages.Rtl433Message
 import io.jrb.labs.model.model.ModelEntity
 import io.jrb.labs.model.repository.ModelRepository
-import io.jrb.labs.model.resource.ModelResource
 import io.jrb.labs.model.resource.SensorsUpdateRequest
+import io.jrb.labs.resources.model.ModelResource
 import io.quarkus.runtime.Startup
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy

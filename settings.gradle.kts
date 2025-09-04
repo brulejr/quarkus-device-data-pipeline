@@ -5,6 +5,7 @@ include(
     "messages",
     "ingester-ms",
     "model-ms",
+    "model-ms-client",
     "device-ms",
     "recommendation-ms"
 )
